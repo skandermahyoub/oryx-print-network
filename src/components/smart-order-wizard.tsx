@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { findService, serviceCatalog, type CatalogService, type ServiceField } from "@/lib/service-catalog";
+import { PricingPreview } from "@/components/pricing-preview";
 
 type Props={initialService?:string};
 type SubmitState="idle"|"sending"|"success"|"error";
@@ -304,6 +305,7 @@ export function SmartOrderWizard({initialService}:Props){
             {Object.entries(specs).length?Object.entries(specs).map(([key,value])=><span key={key}><b>{service.fields.find(field=>field.key===key)?.label??key}</b>{value||"—"}</span>):<p>لم تدخل مواصفات بعد.</p>}
           </div>
           {selectedFinishings.length?<div className="spec-summary">{selectedFinishings.map(item=><span key={item}><b>تشطيب</b>{item}</span>)}</div>:null}
+          <PricingPreview serviceSlug={service.slug} specs={specs}/>
           <div className="customer-summary"><strong>{customer.displayName||"اسم العميل غير مكتمل"}</strong><span>{customer.companyName}</span><span>{customer.phone}</span><span>{customer.city}</span></div>
           {submitState==="error"&&submitMessage?<p className="form-error">{submitMessage}</p>:null}
         </>}

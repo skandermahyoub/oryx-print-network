@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getSalesCampaigns } from "@/lib/admin-campaigns";
 
 const labels:Record<string,string>={
@@ -12,7 +11,6 @@ const labels:Record<string,string>={
 };
 
 export default async function SalesCampaignsPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const campaigns=await getSalesCampaigns();
 
   return <main className="admin-list-page">

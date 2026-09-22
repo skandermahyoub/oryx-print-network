@@ -313,3 +313,12 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .project-admin-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}.project-admin-kpis span{background:#111;border-radius:12px;padding:11px;color:#888;font-size:10px}.project-admin-kpis b{display:block;color:#fff;font-size:20px;margin-bottom:3px}
 @media(max-width:900px){.production-kpis.four,.finance-kpis{grid-template-columns:1fr 1fr}.admin-project-grid{grid-template-columns:1fr}}
 @media(max-width:520px){.production-kpis.four,.finance-kpis,.project-admin-kpis{grid-template-columns:1fr}}
+
+
+/* Service production workflow preview */
+.workflow-preview{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.workflow-preview article{position:relative;border:1px solid var(--line);background:#fbfaf8;border-radius:14px;padding:14px;min-height:100px}
+.workflow-preview article:after{content:"←";position:absolute;inset-inline-end:-9px;top:50%;transform:translateY(-50%);color:var(--red);font-weight:900;z-index:2}
+.workflow-preview article:last-child:after{display:none}.workflow-preview span{display:block;color:var(--red);font-size:9px;font-weight:900;margin-bottom:25px}.workflow-preview strong{font-size:12px;line-height:1.5}
+@media(max-width:900px){.workflow-preview{grid-template-columns:repeat(2,1fr)}.workflow-preview article:nth-child(2n):after{display:none}}
+@media(max-width:520px){.workflow-preview{grid-template-columns:1fr}.workflow-preview article:after{display:none}}

@@ -182,3 +182,12 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .pricing-preview.quote{background:#fff4e6;border:1px solid #efd7b2}.pricing-preview.quote small{color:#9a5b00}.pricing-preview.quote span{color:#765a34}
 .pricing-preview.priced{background:#effaf2;border:1px solid #c8e6d0}.pricing-preview.priced small{color:#1f8d4d}.pricing-preview.priced span{color:#4d6255}
 .pricing-preview.muted{background:#f2f0ed;border:1px solid var(--line);color:var(--muted);font-size:12px}
+
+
+/* Live catalog search */
+.catalog-search-live{position:relative;min-width:0}
+.search-suggestions{position:absolute;z-index:40;top:calc(100% + 8px);inset-inline:0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:7px;box-shadow:0 22px 55px rgba(0,0,0,.16);display:grid;gap:4px;color:var(--ink)}
+.search-suggestions button{border:0;background:transparent;border-radius:12px;padding:11px 12px;text-align:right;display:grid;gap:3px;cursor:pointer}
+.search-suggestions button:hover{background:#f4f1ec}.search-suggestions span{font-size:9px;color:var(--red)}.search-suggestions strong{font-size:13px}
+.catalog-search-result{margin-top:20px;display:inline-flex;gap:7px;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:11px;background:#faf8f5}
+.section-actions{display:flex;justify-content:center;margin-top:28px}

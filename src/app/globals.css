@@ -449,3 +449,17 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .catalog-governance-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.catalog-governance-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:18px;padding:18px}.catalog-governance-kpis small{display:block;color:#777;margin-bottom:12px}.catalog-governance-kpis strong{font-size:34px}
 .catalog-dna-pills{display:flex;gap:4px;flex-wrap:wrap}.catalog-dna-pills span{border:1px solid #333;border-radius:999px;padding:5px 7px;font-size:8px;color:#aaa}.catalog-governance-table form{margin:0}.catalog-governance-table button{border-radius:9px;padding:8px 10px;font-size:9px;font-weight:900;cursor:pointer}.catalog-publish{background:#1f8d4d;border:0;color:#fff}.catalog-unpublish{background:#251719;border:1px solid #5c2a2f;color:#ff9ba0}
 @media(max-width:800px){.catalog-governance-kpis{grid-template-columns:1fr 1fr}}@media(max-width:520px){.catalog-governance-kpis{grid-template-columns:1fr}}
+
+
+/* Service DNA administration */
+.admin-service-detail-page{min-height:100vh;background:#111;color:#fff;padding-bottom:90px}
+.service-public-link{display:inline-flex;align-items:center;border:1px solid #333;border-radius:11px;padding:10px 13px;color:#fff;font-size:10px;font-weight:900}
+.service-field-admin-list{display:grid;gap:6px}.service-field-admin-list article{display:grid;grid-template-columns:1.5fr .7fr .6fr 1fr;gap:10px;align-items:center;background:#111;border-radius:12px;padding:11px}.service-field-admin-list strong{display:block;font-size:11px}.service-field-admin-list small{display:block;color:#666;font-size:8px;margin-top:3px}.service-field-admin-list article>span{font-size:9px;color:#999}
+.service-inline-builder{display:grid;grid-template-columns:1fr 1fr 130px 1.2fr 120px auto;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid #29292c}.service-inline-builder input,.service-inline-builder select{border:1px solid #333;background:#111;color:#fff;border-radius:9px;padding:9px;font-size:9px;min-width:0}.service-inline-builder button{border:0;background:#fff;color:#111;border-radius:9px;padding:9px 12px;font-weight:900;cursor:pointer}
+.workflow-admin-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;padding:10px 12px;background:#111;border-radius:11px}.workflow-admin-head strong{display:block}.workflow-admin-head small{display:block;color:#777;font-size:9px;margin-top:3px}
+.workflow-admin-list{display:grid;gap:6px}.workflow-admin-list article{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:#111;border-radius:12px;padding:10px}.workflow-admin-list article>span{color:var(--red);font-size:9px;font-weight:900}.workflow-admin-list strong{font-size:11px}.workflow-admin-list small{font-size:8px;color:#777}
+.workflow-add-form{grid-template-columns:1.5fr 140px 130px 130px auto}
+.admin-tag-cloud{display:flex;gap:7px;flex-wrap:wrap}.admin-tag-cloud span{border:1px solid #333;background:#111;border-radius:999px;padding:7px 10px;font-size:9px;color:#bbb}
+.service-side-card{margin:0}.service-side-card h2{margin:0 0 14px;font-size:21px}
+@media(max-width:1000px){.service-inline-builder,.workflow-add-form{grid-template-columns:1fr 1fr}.service-inline-builder button{grid-column:1/-1}.service-field-admin-list article{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.service-inline-builder,.workflow-add-form,.service-field-admin-list article{grid-template-columns:1fr}.service-inline-builder button{grid-column:auto}}

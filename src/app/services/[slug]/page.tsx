@@ -74,8 +74,18 @@ export default async function ServicePage({params}:{params:Promise<{slug:string}
         </div>
       </div>:null}
 
+      {service.workflow?.length?<div className="config-panel">
+        <div className="config-title"><span>{service.finishings?.length?"03":"02"}</span><h2>كيف سينفذ العمل؟</h2></div>
+        <div className="workflow-preview">
+          {service.workflow.map((step,index)=><article key={`${step}-${index}`}>
+            <span>{String(index+1).padStart(2,"0")}</span>
+            <strong>{step}</strong>
+          </article>)}
+        </div>
+      </div>:null}
+
       {service.preflight?.length?<div className="config-panel">
-        <div className="config-title"><span>{service.finishings?.length?"03":"02"}</span><h2>متطلبات تجهيز العمل</h2></div>
+        <div className="config-title"><span>{service.workflow?.length?(service.finishings?.length?"04":"03"):(service.finishings?.length?"03":"02")}</span><h2>متطلبات تجهيز العمل</h2></div>
         <div className="preflight-service-grid">
           {service.preflight.map(requirement=><article key={requirement.key}>
             <strong>{requirement.label}</strong>
@@ -85,7 +95,7 @@ export default async function ServicePage({params}:{params:Promise<{slug:string}
       </div>:null}
 
       <div className="config-panel">
-        <div className="config-title"><span>{service.finishings?.length?(service.preflight?.length?"04":"03"):(service.preflight?.length?"03":"02")}</span><h2>التصميم والملفات</h2></div>
+        <div className="config-title"><span>{2+(service.finishings?.length?1:0)+(service.workflow?.length?1:0)+(service.preflight?.length?1:0)}</span><h2>التصميم والملفات</h2></div>
         <div className="option-grid">
           <label className="check-option"><input type="radio" name="design"/><span>لدي تصميم جاهز</span></label>
           <label className="check-option"><input type="radio" name="design"/><span>أحتاج تصميم من أوريكس</span></label>

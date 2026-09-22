@@ -14,27 +14,10 @@ export type StaffAccess={
   permissions:string[];
 };
 
-export async function requireStaffAccess():Promise<StaffAccess>{
-  if(!authConfigured){
-    if(process.env.ENABLE_ADMIN_PREVIEW==="true"){
-      return {
-        preview:true,
-        user:{id:"preview",authUserId:"preview",email:null,name:"Preview Admin"},
-        roles:["preview"],
-        permissions:["*"]
-      };
-    }
-    redirect("/auth/sign-in");
-  }
+type AuthUser={id:string;email?:string|null;name?:string|null};
 
-  const {data:session}=await auth.getSession();
-  if(!session?.user) redirect("/auth/sign-in");
-
-  if(!databaseConfigured()) redirect("/auth/sign-in");
-
-  const authUser=session.user as {id:string;email?:string|null;name?:string|null};
+async function loadStaffRecord(authUser:AuthUser){
   const sql=getSql();
-
   const rows=await sql`
     select
       au.id,
@@ -54,8 +37,74 @@ export async function requireStaffAccess():Promise<StaffAccess>{
     group by au.id
     limit 1
   `;
+  return rows[0];
+}
 
-  const record=rows[0];
+async function bootstrapOwnerIfAllowed(authUser:AuthUser){
+  const configuredOwner=process.env.ORYX_BOOTSTRAP_OWNER_EMAIL?.trim().toLowerCase();
+  const email=authUser.email?.trim().toLowerCase();
+
+  if(!configuredOwner||!email||configuredOwner!==email){
+    return false;
+  }
+
+  const sql=getSql();
+  await sql`
+    with inserted_user as (
+      insert into app_users (
+        auth_user_id,email,display_name,user_type,status
+      ) values (
+        ${authUser.id},
+        ${email},
+        ${authUser.name??email},
+        'staff',
+        'active'
+      )
+      on conflict (auth_user_id) do update set
+        email=excluded.email,
+        display_name=coalesce(app_users.display_name,excluded.display_name),
+        user_type='staff',
+        status='active',
+        updated_at=now()
+      returning id
+    )
+    insert into user_roles (user_id,role_id)
+    select inserted_user.id,r.id
+    from inserted_user
+    join roles r on r.key='owner'
+    on conflict do nothing
+  `;
+
+  return true;
+}
+
+export async function requireStaffAccess():Promise<StaffAccess>{
+  if(!authConfigured){
+    if(process.env.ENABLE_ADMIN_PREVIEW==="true"){
+      return {
+        preview:true,
+        user:{id:"preview",authUserId:"preview",email:null,name:"Preview Admin"},
+        roles:["preview"],
+        permissions:["*"]
+      };
+    }
+    redirect("/auth/sign-in");
+  }
+
+  const {data:session}=await auth.getSession();
+  if(!session?.user) redirect("/auth/sign-in");
+  if(!databaseConfigured()) redirect("/auth/sign-in");
+
+  const authUser=session.user as AuthUser;
+  let record=await loadStaffRecord(authUser);
+
+  if(!record){
+    const bootstrapped=await bootstrapOwnerIfAllowed(authUser);
+    if(bootstrapped){
+      record=await loadStaffRecord(authUser);
+    }
+  }
+
   if(!record||record.status!=="active"||record.user_type!=="staff"){
     redirect("/");
   }

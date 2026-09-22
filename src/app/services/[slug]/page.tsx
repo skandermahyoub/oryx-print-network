@@ -74,8 +74,18 @@ export default async function ServicePage({params}:{params:Promise<{slug:string}
         </div>
       </div>:null}
 
+      {service.preflight?.length?<div className="config-panel">
+        <div className="config-title"><span>{service.finishings?.length?"03":"02"}</span><h2>متطلبات تجهيز العمل</h2></div>
+        <div className="preflight-service-grid">
+          {service.preflight.map(requirement=><article key={requirement.key}>
+            <strong>{requirement.label}</strong>
+            <small>{requirement.requiredBeforeQuote?"مطلوب قبل عرض السعر":requirement.requiredBeforeProduction?"مطلوب قبل الإنتاج":"للمراجعة"}</small>
+          </article>)}
+        </div>
+      </div>:null}
+
       <div className="config-panel">
-        <div className="config-title"><span>{service.finishings?.length?"03":"02"}</span><h2>التصميم والملفات</h2></div>
+        <div className="config-title"><span>{service.finishings?.length?(service.preflight?.length?"04":"03"):(service.preflight?.length?"03":"02")}</span><h2>التصميم والملفات</h2></div>
         <div className="option-grid">
           <label className="check-option"><input type="radio" name="design"/><span>لدي تصميم جاهز</span></label>
           <label className="check-option"><input type="radio" name="design"/><span>أحتاج تصميم من أوريكس</span></label>

@@ -20,7 +20,7 @@ export default async function AdminOrdersPage(){
           <thead><tr><th>الطلب</th><th>العميل</th><th>الحالة</th><th>العناصر</th><th>الإجمالي</th><th>التاريخ</th></tr></thead>
           <tbody>
             {orders.length?orders.map(order=><tr key={order.id}>
-              <td><strong>#{order.orderNumber}</strong></td>
+              <td><Link className="table-order-link" href={`/admin/orders/${order.id}`}><strong>#{order.orderNumber}</strong></Link></td>
               <td><strong>{order.customerName}</strong><small>{order.companyName??order.phone??"—"}</small></td>
               <td><span className="status-pill">{order.statusLabel}</span></td>
               <td>{order.itemCount}</td>

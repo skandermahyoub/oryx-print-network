@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { findProject, projectIdeas } from "@/lib/projects";
 
 export function generateStaticParams(){
   return projectIdeas.map(project=>({slug:project.slug}));
+}
+
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
+  const {slug}=await params;
+  const project=findProject(slug);
+  if(!project) return {};
+  return {title:`${project.title} | ORYX Projects Lab`,description:project.summary};
 }
 
 export default async function ProjectDetailPage({params}:{params:Promise<{slug:string}>}){

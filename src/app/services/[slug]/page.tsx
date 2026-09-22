@@ -1,14 +1,38 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { findService, serviceCatalog } from "@/lib/service-catalog";
+import { getCatalogService } from "@/lib/catalog-repository";
+import { serviceCatalog } from "@/lib/service-catalog";
 
 export function generateStaticParams(){
   return serviceCatalog.map(service=>({slug:service.slug}));
 }
 
+function FieldControl({field}:{field:Awaited<ReturnType<typeof getCatalogService>> extends infer S ? S extends {fields:Array<infer F>} ? F : never : never}){
+  if(!field) return null;
+  if(field.type==="select"){
+    return <select defaultValue=""><option value="" disabled>اختر</option>{field.options?.map(option=><option key={option}>{option}</option>)}</select>;
+  }
+  if(field.type==="boolean"){
+    return <select defaultValue=""><option value="" disabled>اختر</option><option>نعم</option><option>لا</option></select>;
+  }
+  if(field.type==="file"){
+    return <input type="file"/>;
+  }
+  if(field.type==="textarea"){
+    return <textarea rows={4} placeholder="اكتب التفاصيل"/>;
+  }
+  if(field.type==="date"){
+    return <input type="date"/>;
+  }
+  if(field.type==="color"){
+    return <input type="color"/>;
+  }
+  return <input type={field.type==="number"?"number":"text"} placeholder={field.unit??(field.type==="location"?"اكتب الموقع أو العنوان":"أدخل القيمة")}/>;
+}
+
 export default async function ServicePage({params}:{params:Promise<{slug:string}>}){
   const {slug}=await params;
-  const service=findService(slug);
+  const service=await getCatalogService(slug);
   if(!service) notFound();
 
   return <main className="service-detail">
@@ -27,13 +51,7 @@ export default async function ServicePage({params}:{params:Promise<{slug:string}
         <div className="field-grid">
           {service.fields.map(field=><label className="field-card" key={field.key}>
             <span>{field.label}{field.required?" *":""}</span>
-            {field.type==="select"
-              ? <select defaultValue=""><option value="" disabled>اختر</option>{field.options?.map(option=><option key={option}>{option}</option>)}</select>
-              : field.type==="boolean"
-              ? <select defaultValue=""><option value="" disabled>اختر</option><option>نعم</option><option>لا</option></select>
-              : field.type==="file"
-              ? <input type="file"/>
-              : <input type={field.type==="number"?"number":"text"} placeholder={field.unit?field.unit:"أدخل القيمة"}/>}
+            <FieldControl field={field}/>
           </label>)}
         </div>
       </div>

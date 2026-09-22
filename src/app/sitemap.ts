@@ -2,12 +2,12 @@ import type { MetadataRoute } from "next";
 import { getCatalogSummaries } from "@/lib/catalog-repository";
 import { offerPackages } from "@/lib/packages";
 import { projectIdeas } from "@/lib/projects";
-import { magazineArticles } from "@/lib/magazine";
+import { getMagazinePosts } from "@/lib/magazine-repository";
 import { getSiteUrl } from "@/lib/site-url";
 
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   const base=getSiteUrl();
-  const services=await getCatalogSummaries();
+  const [services,posts]=await Promise.all([getCatalogSummaries(),getMagazinePosts()]);
 
   const staticRoutes=["","/services","/packages","/projects","/partners","/magazine","/order/new","/track"];
   return [
@@ -31,7 +31,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
       changeFrequency:"monthly" as const,
       priority:0.65
     })),
-    ...magazineArticles.map(article=>({
+    ...posts.map(article=>({
       url:`${base}/magazine/${article.slug}`,
       changeFrequency:"monthly" as const,
       priority:0.7

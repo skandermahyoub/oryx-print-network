@@ -367,6 +367,7 @@ export function SmartOrderWizard({initialService}:Props){
           </div>
           {selectedFinishings.length?<div className="spec-summary">{selectedFinishings.map(item=><span key={item}><b>تشطيب</b>{item}</span>)}</div>:null}
           <PricingPreview serviceSlug={service.slug} specs={specs}/>
+          <button type="button" className="add-another-item" onClick={addAnotherItem}>+ أضف خدمة أخرى إلى نفس الطلب</button>
           <div className="customer-summary"><strong>{customer.displayName||"اسم العميل غير مكتمل"}</strong><span>{customer.companyName}</span><span>{customer.phone}</span><span>{customer.city}</span></div>
           {submitState==="error"&&submitMessage?<p className="form-error">{submitMessage}</p>:null}
         </>}
@@ -376,7 +377,7 @@ export function SmartOrderWizard({initialService}:Props){
     <div className="wizard-footer">
       <button type="button" className="secondary-button" disabled={step===0||submitState==="sending"} onClick={()=>setStep(value=>Math.max(0,value-1))}>السابق</button>
       {step<steps.length-1
-        ? <button type="button" className="primary-button" disabled={step===1&&(!service||serviceLoading)} onClick={goNext}>التالي</button>
+        ? <button type="button" className="primary-button" disabled={(step===0&&!serviceSlug)||(step===1&&(!service||serviceLoading))} onClick={goNext}>التالي</button>
         : submitState!=="success"?<button type="button" className="primary-button" disabled={submitState==="sending"} onClick={createOrder}>{submitState==="sending"?"جاري إنشاء الطلب...":"إنشاء الطلب"}</button>
         : <button type="button" className="primary-button" onClick={()=>{setStep(0);setSpecs({});setSelectedFinishings([]);setCreatedOrder(null);setCreatedItemCount(0);setDraftItems([]);setSubmitState("idle");}}>طلب جديد</button>}
     </div>

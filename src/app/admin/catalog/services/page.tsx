@@ -35,7 +35,7 @@ export default async function CatalogServicesPage(){
           <thead><tr><th>الخدمة</th><th>القسم</th><th>DNA</th><th>التسعير</th><th>الظهور</th><th>الإجراء</th></tr></thead>
           <tbody>
             {services.map(service=><tr key={service.id}>
-              <td><strong>{service.name}</strong><small>{service.slug}</small></td>
+              <td><Link className="table-order-link" href={`/admin/catalog/services/${service.id}`}><strong>{service.name}</strong><small>{service.slug}</small></Link></td>
               <td>{service.department}<small>{service.category}</small></td>
               <td><div className="catalog-dna-pills">
                 <span>{service.fields} حقول</span>

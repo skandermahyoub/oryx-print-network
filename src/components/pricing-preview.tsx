@@ -8,12 +8,10 @@ type Result=
 
 export function PricingPreview({serviceSlug,specs}:{serviceSlug:string;specs:Record<string,string>}){
   const [result,setResult]=useState<Result|null>(null);
-  const [loading,setLoading]=useState(false);
 
   useEffect(()=>{
     if(!serviceSlug) return;
     let active=true;
-    setLoading(true);
     fetch("/api/pricing/preview",{
       method:"POST",
       headers:{"content-type":"application/json"},
@@ -21,13 +19,11 @@ export function PricingPreview({serviceSlug,specs}:{serviceSlug:string;specs:Rec
     })
       .then(response=>response.ok?response.json():Promise.reject(new Error("pricing")))
       .then(data=>active&&setResult(data))
-      .catch(()=>active&&setResult({status:"requires_quote",reason:"تعذر احتساب السعر آليًا."}))
-      .finally(()=>active&&setLoading(false));
+      .catch(()=>active&&setResult({status:"requires_quote",reason:"تعذر احتساب السعر آليًا."}));
     return ()=>{active=false;};
   },[serviceSlug,specs]);
 
-  if(loading) return <div className="pricing-preview muted">جاري فحص قواعد التسعير…</div>;
-  if(!result) return null;
+  if(!result) return <div className="pricing-preview muted">جاري فحص قواعد التسعير…</div>;
 
   if(result.status==="requires_quote"){
     return <div className="pricing-preview quote">

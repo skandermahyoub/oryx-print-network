@@ -299,3 +299,8 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .pricing-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.pricing-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:20px;padding:20px}.pricing-kpis small{display:block;color:#777;margin-bottom:14px}.pricing-kpis strong{font-size:35px}
 .status-pill.ready{background:rgba(47,176,92,.13);border-color:rgba(47,176,92,.25);color:#8ee7aa}.status-pill.warning{background:rgba(232,166,52,.12);border-color:rgba(232,166,52,.24);color:#f0bf69}
 @media(max-width:800px){.pricing-kpis{grid-template-columns:1fr 1fr}}@media(max-width:520px){.pricing-kpis{grid-template-columns:1fr}}
+
+
+/* Design & production dashboards */
+.production-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}.production-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:20px;padding:20px}.production-kpis small{display:block;color:#777;margin-bottom:14px}.production-kpis strong{font-size:36px}
+@media(max-width:900px){.production-kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.production-kpis{grid-template-columns:1fr}}

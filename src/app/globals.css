@@ -191,3 +191,19 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .search-suggestions button:hover{background:#f4f1ec}.search-suggestions span{font-size:9px;color:var(--red)}.search-suggestions strong{font-size:13px}
 .catalog-search-result{margin-top:20px;display:inline-flex;gap:7px;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:11px;background:#faf8f5}
 .section-actions{display:flex;justify-content:center;margin-top:28px}
+
+
+/* Projects Lab detail */
+.project-detail-page{min-height:100vh;background:#f5f2ed}
+.project-detail-hero{display:grid;grid-template-columns:1.15fr .85fr;gap:42px;align-items:center;padding:90px 7vw;background:#fff;border-bottom:1px solid var(--line)}
+.project-detail-hero h1{font-size:clamp(54px,7vw,96px);line-height:.98;letter-spacing:-.06em;margin:14px 0 22px}
+.project-detail-hero p{font-size:19px;line-height:1.9;color:var(--muted);max-width:760px}
+.project-model-card{background:var(--black);color:#fff;border-radius:28px;padding:34px;min-height:260px;display:flex;flex-direction:column;justify-content:flex-end}
+.project-model-card small{color:#8a8a8a;margin-bottom:12px}.project-model-card strong{font-size:34px;line-height:1.25}
+.project-detail-body{width:min(1200px,calc(100% - 36px));margin:auto;padding:80px 0 110px;display:grid;gap:50px}
+.project-column h2{font-size:clamp(34px,5vw,60px);margin:10px 0 28px;letter-spacing:-.04em}
+.project-output-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.project-output-grid article{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;min-height:150px}.project-output-grid span{display:block;color:var(--red);font-size:11px;font-weight:900}.project-output-grid strong{display:block;margin-top:36px;font-size:20px}
+.project-segments{display:flex;gap:10px;flex-wrap:wrap}.project-segments span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:12px 16px;font-size:13px}
+.project-operating-note{background:var(--black);color:#fff;border-radius:26px;padding:30px}.project-operating-note strong{font-size:24px}.project-operating-note p{color:#aaa;line-height:1.9;margin-bottom:0}
+@media(max-width:900px){.project-detail-hero{grid-template-columns:1fr}.project-output-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.project-detail-hero{padding:64px 20px}.project-detail-body{padding:55px 0 80px}.project-output-grid{grid-template-columns:1fr}}

@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getDesignSnapshot } from "@/lib/admin-design";
 
 export default async function DesignPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const design=await getDesignSnapshot();
 
   return <main className="admin-list-page">

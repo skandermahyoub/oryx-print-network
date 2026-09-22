@@ -14,6 +14,22 @@ export async function assignRoleAction(formData:FormData){
   const roleKey=value(formData,"roleKey");
   const sql=getSql();
 
+  if(roleKey==="owner"){
+    if(!access.preview&&userId===access.user.id){
+      throw new Error("لا يمكنك إزالة دور المالك من حسابك أثناء الجلسة.");
+    }
+
+    const owners=await sql`
+      select count(distinct ur.user_id)::integer as count
+      from user_roles ur
+      join roles r on r.id=ur.role_id
+      where r.key='owner'
+    `;
+    if(Number(owners[0]?.count??0)<=1){
+      throw new Error("يجب أن يبقى مالك واحد على الأقل للنظام.");
+    }
+  }
+
   const rows=await sql`
     with target_role as (
       select id,key from roles where key=${roleKey} limit 1

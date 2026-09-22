@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getCrmSnapshot } from "@/lib/admin-crm";
 
 const stageLabels:Record<string,string>={
@@ -13,7 +12,6 @@ const stageLabels:Record<string,string>={
 };
 
 export default async function CrmPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const crm=await getCrmSnapshot();
 
   return <main className="admin-list-page">

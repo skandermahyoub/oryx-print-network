@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+
 const modules=[
 ["الكتالوج ومحرك الخدمات","الأقسام، الخدمات، الحقول الديناميكية، الخامات والتشطيبات"],
 ["التسعير","قواعد السعر، الكميات، المعادلات، العاجل والخصومات"],
@@ -14,6 +16,7 @@ const modules=[
 ];
 
 export default function AdminPage(){
+  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   return <main className="admin-preview">
     <section className="admin-top">
       <div><span className="eyebrow">ORYX OPERATING SYSTEM</span><h1>مركز القيادة</h1><p>نسخة البناء الأولية. المصادقة والصلاحيات ستغلق هذه المنطقة قبل أول نشر عام.</p></div>

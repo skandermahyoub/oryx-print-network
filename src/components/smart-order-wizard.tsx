@@ -24,6 +24,35 @@ type DraftItem={
 
 const steps=["الخدمة","المواصفات","التصميم","التسليم","بياناتك","الملخص"];
 
+function conditionMatches(conditions:Record<string,unknown>,specs:Record<string,string>){
+  const field=typeof conditions.field==="string"?conditions.field:null;
+  if(!field) return false;
+  const value=specs[field]??"";
+  if(conditions.equals!==undefined) return String(value)===String(conditions.equals);
+  if(conditions.not_equals!==undefined) return String(value)!==String(conditions.not_equals);
+  if(conditions.greater_than!==undefined) return Number(value)>Number(conditions.greater_than);
+  if(conditions.less_than!==undefined) return Number(value)<Number(conditions.less_than);
+  if(Array.isArray(conditions.in)) return conditions.in.map(String).includes(String(value));
+  return false;
+}
+
+function isFieldVisible(service:CatalogService,fieldKey:string,specs:Record<string,string>){
+  const rules=(service.fieldRules??[]).filter(rule=>rule.targetFieldKey===fieldKey);
+  const showRules=rules.filter(rule=>rule.ruleType==="show_if");
+  if(showRules.length&&!showRules.some(rule=>conditionMatches(rule.conditions,specs))) return false;
+  if(rules.some(rule=>rule.ruleType==="hide_if"&&conditionMatches(rule.conditions,specs))) return false;
+  return true;
+}
+
+function isFieldRequired(service:CatalogService,field:ServiceField,specs:Record<string,string>){
+  if(field.required) return true;
+  return (service.fieldRules??[]).some(rule=>
+    rule.targetFieldKey===field.key&&
+    rule.ruleType==="require_if"&&
+    conditionMatches(rule.conditions,specs)
+  );
+}
+
 function fallbackSummaries():CatalogSummary[]{
   return serviceCatalog.map(service=>({
     slug:service.slug,
@@ -131,6 +160,11 @@ export function SmartOrderWizard({initialService}:Props){
   const serviceLoading=Boolean(serviceSlug&&service?.slug!==serviceSlug);
 
   const categories=useMemo(()=>Array.from(new Set(catalog.map(item=>item.category))),[catalog]);
+  const visibleFields=useMemo(
+    ()=>service?service.fields.filter(field=>isFieldVisible(service,field.key,specs)):[],
+    [service,specs]
+  );
+
   const filteredCatalog=useMemo(()=>{
     const needle=catalogSearch.trim().toLowerCase();
     return catalog.filter(item=>{
@@ -195,7 +229,7 @@ export function SmartOrderWizard({initialService}:Props){
   function goNext(){
     setSubmitMessage("");
     if(step===1&&service){
-      const missing=service.fields.filter(field=>field.required&&field.type!=="file"&&!String(specs[field.key]??"").trim());
+      const missing=visibleFields.filter(field=>isFieldRequired(service,field,specs)&&field.type!=="file"&&!String(specs[field.key]??"").trim());
       if(missing.length){
         setSubmitState("error");
         setSubmitMessage(`أكمل الحقول المطلوبة: ${missing.map(field=>field.label).join("، ")}`);
@@ -296,8 +330,8 @@ export function SmartOrderWizard({initialService}:Props){
           <h2>{service.title}</h2>
           <p className="wizard-lead">{service.summary}</p>
           <div className="field-grid">
-            {service.fields.map(field=><label className="field-card" key={field.key}>
-              <span>{field.label}{field.required?" *":""}</span>
+            {visibleFields.map(field=><label className="field-card" key={field.key}>
+              <span>{field.label}{isFieldRequired(service,field,specs)?" *":""}</span>
               <FieldInput field={field} value={specs[field.key]??""} onChange={value=>setSpec(field.key,value)}/>
             </label>)}
           </div>
@@ -319,6 +353,15 @@ export function SmartOrderWizard({initialService}:Props){
             <button type="button" key={value} className={design===value?"selected":""} onClick={()=>setDesign(value)}><strong>{title}</strong><span>{desc}</span></button>
           )}
         </div>
+        {service?.preflight?.length?<div className="preflight-panel">
+          <div><small>قبل الإنتاج</small><strong>متطلبات تجهيز هذه الخدمة</strong></div>
+          <ul>
+            {service.preflight.map(requirement=><li key={requirement.key}>
+              <span>{requirement.label}</span>
+              <small>{requirement.requiredBeforeQuote?"قبل عرض السعر":requirement.requiredBeforeProduction?"قبل الإنتاج":"للمراجعة"}</small>
+            </li>)}
+          </ul>
+        </div>:null}
       </section>}
 
       {step===3&&<section>

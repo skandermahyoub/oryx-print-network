@@ -23,7 +23,7 @@ export async function GET(){
       order by c.sort_order,s.sort_order,s.name_ar
     `;
     return NextResponse.json({source:"neon",services:rows});
-  }catch(error){
+  }catch{
     return NextResponse.json(
       {source:"fallback",warning:"Database unavailable",services:serviceCatalog},
       {status:200}

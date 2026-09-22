@@ -7,6 +7,21 @@ export type ServiceField = {
   unit?: string;
 };
 
+export type ServiceFieldRule = {
+  targetFieldKey: string;
+  ruleType: "show_if" | "hide_if" | "require_if" | "disable_if" | "validate";
+  conditions: Record<string, unknown>;
+  message?: string;
+};
+
+export type PreflightRequirement = {
+  key: string;
+  label: string;
+  type: "check" | "file" | "measurement" | "approval" | "sample";
+  requiredBeforeQuote: boolean;
+  requiredBeforeProduction: boolean;
+};
+
 export type CatalogService = {
   slug: string;
   category: string;
@@ -15,6 +30,8 @@ export type CatalogService = {
   pricingMode: "instant" | "quote";
   fields: ServiceField[];
   finishings?: string[];
+  fieldRules?: ServiceFieldRule[];
+  preflight?: PreflightRequirement[];
   tags: string[];
 };
 

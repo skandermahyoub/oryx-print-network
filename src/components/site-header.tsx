@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const nav=[
+  ["من نحن","/about"],
   ["الخدمات","/services"],
   ["الباقات","/packages"],
   ["مشاريعنا","/projects"],

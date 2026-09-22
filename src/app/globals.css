@@ -351,3 +351,12 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .portal-list{display:grid;gap:7px}.portal-list>div{border:1px solid var(--line);border-radius:13px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:5px}.portal-list strong{font-size:13px}.portal-list span{font-size:11px}.portal-list small{grid-column:1/-1;color:var(--muted);font-size:9px}
 @media(max-width:950px){.partner-portal-kpis{grid-template-columns:1fr 1fr}.partner-portal-grid{grid-template-columns:1fr}.partner-portal-head{align-items:flex-start;flex-direction:column}}
 @media(max-width:520px){.partner-portal-kpis{grid-template-columns:1fr}.partner-portal-head{padding:58px 20px 40px}}
+
+
+/* Sourcing engine */
+.sourcing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.sourcing-grid>article{background:#18181a;border:1px solid #2a2a2d;border-radius:24px;padding:22px;min-height:360px}
+.sourcing-grid header{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.sourcing-grid header small{color:#777}.sourcing-grid h2{font-size:27px;margin:6px 0 0}
+.sourcing-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:20px 0}.sourcing-meta span{background:#111;border-radius:12px;padding:10px;font-size:10px;color:#aaa}.sourcing-meta b{display:block;color:#666;margin-bottom:4px}
+.candidate-list{display:grid;gap:6px}.candidate-list>div{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;background:#111;border-radius:13px;padding:10px}.candidate-rank{display:grid;place-items:center;width:31px;height:31px;border-radius:50%;background:#222;color:#fff;font-size:10px;font-weight:900}.candidate-list strong{display:block;font-size:12px}.candidate-list small{display:block;color:#777;font-size:9px;margin-top:3px}.candidate-list b{font-size:10px}.candidate-list em{font-style:normal;font-size:8px;color:#999}
+@media(max-width:900px){.sourcing-grid{grid-template-columns:1fr}}@media(max-width:560px){.sourcing-meta{grid-template-columns:1fr}.candidate-list>div{grid-template-columns:auto 1fr}.candidate-list b,.candidate-list em{grid-column:2}}

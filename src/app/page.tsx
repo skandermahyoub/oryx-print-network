@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ServiceGrid } from "@/components/service-grid";
 import { SiteHeader } from "@/components/site-header";
 
@@ -11,8 +12,8 @@ export default function Home(){
         <h1>نطبع أي شيء<br/><span>على أي شيء.</span></h1>
         <p>صمّم، اطبع، اصنع ونفّذ ما تحتاجه من مكان واحد. أوريكس تدير الفكرة والمواصفات والتسعير والإنتاج والجودة والتسليم عبر شبكة تنفيذ متخصصة.</p>
         <div className="hero-actions">
-          <a className="primary-button" href="/order/new">ابدأ طلبك الآن</a>
-          <a className="secondary-button" href="/services">استكشف الخدمات</a>
+          <Link className="primary-button" href="/order/new">ابدأ طلبك الآن</Link>
+          <Link className="secondary-button" href="/services">استكشف الخدمات</Link>
         </div>
       </div>
       <div className="hero-panel" aria-label="مؤشرات المنصة">

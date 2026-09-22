@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { magazineArticles } from "@/lib/magazine";
 
 export function generateStaticParams(){
   return magazineArticles.map(article=>({slug:article.slug}));
+}
+
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
+  const {slug}=await params;
+  const article=magazineArticles.find(item=>item.slug===slug);
+  if(!article) return {};
+  return {title:`${article.title} | مجلة ORYX`,description:article.excerpt};
 }
 
 export default async function ArticlePage({params}:{params:Promise<{slug:string}>}){

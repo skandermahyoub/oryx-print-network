@@ -7,6 +7,7 @@ const nav=[
   ["شركاؤنا","/partners"],
   ["المجلة","/magazine"],
   ["تتبع طلبك","/track"],
+  ["حسابي","/account"],
 ];
 
 export function SiteHeader(){

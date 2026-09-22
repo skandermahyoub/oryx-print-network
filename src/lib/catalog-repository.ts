@@ -1,5 +1,5 @@
 import { databaseConfigured, getSql } from "@/lib/db";
-import { findService, serviceCatalog, type CatalogService, type ServiceField } from "@/lib/service-catalog";
+import { findService, serviceCatalog, type CatalogService, type PreflightRequirement, type ServiceField, type ServiceFieldRule } from "@/lib/service-catalog";
 
 export type CatalogSummary={
   slug:string;
@@ -129,6 +129,20 @@ export async function getCatalogService(slug:string):Promise<CatalogService|unde
       order by sf.sort_order,f.name_ar
     `;
 
+    const rules=await sql`
+      select target_field_key,rule_type,conditions,message_ar
+      from service_field_rules
+      where service_id=${service.id} and is_active=true
+      order by priority,id
+    `;
+
+    const preflight=await sql`
+      select requirement_key,label_ar,requirement_type,required_before_quote,required_before_production
+      from service_preflight_requirements
+      where service_id=${service.id}
+      order by sort_order,label_ar
+    `;
+
     return {
       slug:String(service.slug),
       category:String(service.category_name),
@@ -137,6 +151,19 @@ export async function getCatalogService(slug:string):Promise<CatalogService|unde
       pricingMode:pricingMode(String(service.selling_mode??"")),
       fields:(fields as unknown as FieldRow[]).map(toField),
       finishings:finishings.map(row=>String(row.name_ar)),
+      fieldRules:rules.map(row=>({
+        targetFieldKey:String(row.target_field_key),
+        ruleType:String(row.rule_type) as ServiceFieldRule["ruleType"],
+        conditions:configObject(row.conditions),
+        message:row.message_ar?String(row.message_ar):undefined
+      })),
+      preflight:preflight.map(row=>({
+        key:String(row.requirement_key),
+        label:String(row.label_ar),
+        type:String(row.requirement_type) as PreflightRequirement["type"],
+        requiredBeforeQuote:Boolean(row.required_before_quote),
+        requiredBeforeProduction:Boolean(row.required_before_production)
+      })),
       tags:[]
     };
   }catch{

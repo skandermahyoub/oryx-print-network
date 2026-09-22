@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getAdminStats } from "@/lib/admin-stats";
 
 const modules=[
@@ -20,7 +19,6 @@ const modules=[
 ];
 
 export default async function AdminPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const stats=await getAdminStats();
 
   return <main className="admin-preview">

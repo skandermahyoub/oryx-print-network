@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getAdminPartners } from "@/lib/admin-partners";
 
 const statusLabels:Record<string,string>={
@@ -11,7 +10,6 @@ const statusLabels:Record<string,string>={
 };
 
 export default async function AdminPartnersPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const partners=await getAdminPartners();
 
   return <main className="admin-list-page">

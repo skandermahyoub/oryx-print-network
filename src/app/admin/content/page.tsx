@@ -11,7 +11,7 @@ export default async function ContentAdminPage(){
         <h1>المجلة الرقمية</h1>
         <p>كل مقال يجب أن يجيب عن سؤال حقيقي، يربط بالخدمة المناسبة، ويصنع مدخلًا عضويًا إلى ORYX بدل نشر محتوى للزينة.</p>
       </div>
-      <Link className="secondary-button" href="/admin">مركز القيادة</Link>
+      <div className="admin-list-actions"><Link className="primary-button" href="/admin/content/new">مقال جديد</Link><Link className="secondary-button" href="/admin">مركز القيادة</Link></div>
     </section>
 
     <section className="admin-list-shell">
@@ -20,7 +20,7 @@ export default async function ContentAdminPage(){
           <thead><tr><th>المقال</th><th>التصنيف</th><th>الحالة</th><th>SEO</th><th>خدمات مرتبطة</th><th>آخر تحديث</th></tr></thead>
           <tbody>
             {posts.length?posts.map(post=><tr key={post.id}>
-              <td><strong>{post.title}</strong><small>{post.slug}</small></td>
+              <td><Link className="table-order-link" href={`/admin/content/${post.id}`}><strong>{post.title}</strong><small>{post.slug}</small></Link></td>
               <td>{post.category??"—"}</td>
               <td><span className="status-pill">{post.status}</span></td>
               <td>{post.seoTitle?"مهيأ":"يحتاج إعداد"}</td>

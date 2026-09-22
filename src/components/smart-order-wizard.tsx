@@ -14,6 +14,14 @@ type CatalogSummary={
   pricingMode:"instant"|"quote";
 };
 
+type DraftItem={
+  serviceSlug:string;
+  title:string;
+  specs:Record<string,string>;
+  finishings:string[];
+  design:"ready"|"oryx"|"idea";
+};
+
 const steps=["الخدمة","المواصفات","التصميم","التسليم","بياناتك","الملخص"];
 
 function fallbackSummaries():CatalogSummary[]{
@@ -85,6 +93,8 @@ export function SmartOrderWizard({initialService}:Props){
   const [submitState,setSubmitState]=useState<SubmitState>("idle");
   const [submitMessage,setSubmitMessage]=useState("");
   const [createdOrder,setCreatedOrder]=useState<number|null>(null);
+  const [createdItemCount,setCreatedItemCount]=useState(0);
+  const [draftItems,setDraftItems]=useState<DraftItem[]>([]);
 
   useEffect(()=>{
     let active=true;
@@ -151,6 +161,37 @@ export function SmartOrderWizard({initialService}:Props){
     setSelectedFinishings(current=>current.includes(name)?current.filter(item=>item!==name):[...current,name]);
   }
 
+  function currentDraftItem():DraftItem|null{
+    if(!service) return null;
+    return {
+      serviceSlug:service.slug,
+      title:service.title,
+      specs:{...specs},
+      finishings:[...selectedFinishings],
+      design:design as DraftItem["design"]
+    };
+  }
+
+  function addAnotherItem(){
+    const item=currentDraftItem();
+    if(!item) return;
+    setDraftItems(current=>[...current,item]);
+    setServiceSlug("");
+    setService(undefined);
+    setSpecs({});
+    setSelectedFinishings([]);
+    setDesign("ready");
+    setCatalogSearch("");
+    setCategoryFilter("all");
+    setSubmitState("idle");
+    setSubmitMessage("");
+    setStep(0);
+  }
+
+  function removeDraftItem(index:number){
+    setDraftItems(current=>current.filter((_,itemIndex)=>itemIndex!==index));
+  }
+
   function goNext(){
     setSubmitMessage("");
     if(step===1&&service){
@@ -187,10 +228,20 @@ export function SmartOrderWizard({initialService}:Props){
         method:"POST",
         headers:{"content-type":"application/json"},
         body:JSON.stringify({
-          serviceSlug:service.slug,
-          specs,
-          finishings:selectedFinishings,
-          design,
+          items:[
+            ...draftItems.map(item=>({
+              serviceSlug:item.serviceSlug,
+              specs:item.specs,
+              finishings:item.finishings,
+              design:item.design
+            })),
+            {
+              serviceSlug:service.slug,
+              specs,
+              finishings:selectedFinishings,
+              design
+            }
+          ],
           fulfilment,
           customer
         })
@@ -199,6 +250,7 @@ export function SmartOrderWizard({initialService}:Props){
       if(!response.ok) throw new Error(data.error??"تعذر إنشاء الطلب");
 
       setCreatedOrder(data.orderNumber??null);
+      setCreatedItemCount(Number(data.itemCount??draftItems.length+1));
       setSubmitState("success");
       setSubmitMessage("تم إنشاء الطلب وإرساله للمراجعة.");
     }catch(error){
@@ -217,7 +269,10 @@ export function SmartOrderWizard({initialService}:Props){
     <div className="wizard-body">
       {step===0&&<section>
         <span className="eyebrow">STEP 01</span>
-        <h2>اختر من موسوعة الخدمات</h2>
+        <div className="wizard-title-row">
+          <h2>اختر من موسوعة الخدمات</h2>
+          {draftItems.length?<span className="order-cart-badge">{draftItems.length} عنصر محفوظ في الطلب</span>:null}
+        </div>
         <p className="wizard-lead">{catalogLoading?"جاري تحميل الكتالوج الكامل...":`${catalog.length} خدمة متاحة داخل ORYX.`}</p>
         <div className="catalog-picker-tools">
           <input value={catalogSearch} onChange={event=>setCatalogSearch(event.target.value)} placeholder="ابحث: مجلة، تقويم، استيكر، علبة، لوحة، هدية..."/>
@@ -292,8 +347,15 @@ export function SmartOrderWizard({initialService}:Props){
         {submitState==="success"?<div className="order-created">
           <span>تم</span>
           <h3>طلبك أصبح داخل ORYX</h3>
-          <p>{createdOrder?<>رقم الطلب <strong>#{createdOrder}</strong>. </>:null}سيتم تحويله الآن إلى التسعير أو المراجعة حسب نوع الخدمة.</p>
+          <p>{createdOrder?<>رقم الطلب <strong>#{createdOrder}</strong>. </>:null}{createdItemCount>1?<>يحتوي على <strong>{createdItemCount}</strong> عناصر. </>:null}سيتم تحويله الآن إلى التسعير أو المراجعة حسب نوع كل خدمة.</p>
         </div>:<>
+          {draftItems.length?<div className="multi-item-cart">
+            <div className="multi-item-cart-head"><strong>عناصر إضافية في نفس الطلب</strong><span>{draftItems.length}</span></div>
+            {draftItems.map((item,index)=><article key={`${item.serviceSlug}-${index}`}>
+              <div><small>عنصر {index+1}</small><strong>{item.title}</strong></div>
+              <button type="button" onClick={()=>removeDraftItem(index)}>إزالة</button>
+            </article>)}
+          </div>:null}
           <div className="order-summary">
             <div><small>الخدمة</small><strong>{service.title}</strong></div>
             <div><small>آلية السعر</small><strong>{service.pricingMode==="instant"?"تسعير مباشر":"عرض سعر بعد المراجعة"}</strong></div>
@@ -316,7 +378,7 @@ export function SmartOrderWizard({initialService}:Props){
       {step<steps.length-1
         ? <button type="button" className="primary-button" disabled={step===1&&(!service||serviceLoading)} onClick={goNext}>التالي</button>
         : submitState!=="success"?<button type="button" className="primary-button" disabled={submitState==="sending"} onClick={createOrder}>{submitState==="sending"?"جاري إنشاء الطلب...":"إنشاء الطلب"}</button>
-        : <button type="button" className="primary-button" onClick={()=>{setStep(0);setSpecs({});setSelectedFinishings([]);setCreatedOrder(null);setSubmitState("idle");}}>طلب جديد</button>}
+        : <button type="button" className="primary-button" onClick={()=>{setStep(0);setSpecs({});setSelectedFinishings([]);setCreatedOrder(null);setCreatedItemCount(0);setDraftItems([]);setSubmitState("idle");}}>طلب جديد</button>}
     </div>
   </div>;
 }

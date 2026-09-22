@@ -177,3 +177,66 @@ export async function createServiceDraftAction(
     return {ok:false,message:"حدث خطأ أثناء حفظ الخدمة. لم يتم نشر أي شيء للعامة."};
   }
 }
+
+
+export async function setServicePublicationAction(formData:FormData){
+  const access=await requirePermission("catalog.manage");
+  const serviceId=String(formData.get("serviceId")??"").trim();
+  const publish=String(formData.get("publish")??"")==="true";
+  const sql=getSql();
+
+  const rows=await sql`
+    select
+      s.id,s.slug,s.selling_mode,s.pricing_mode,s.is_public,
+      (select count(*)::integer from service_fields sf where sf.service_id=s.id) as field_count,
+      (select count(*)::integer from pricing_rules pr where pr.service_id=s.id and pr.is_active=true) as pricing_rules
+    from services s
+    where s.id=${serviceId}
+    limit 1
+  `;
+
+  const service=rows[0];
+  if(!service) throw new Error("الخدمة غير موجودة.");
+
+  if(publish){
+    if(Number(service.field_count??0)<1){
+      throw new Error("لا يمكن نشر خدمة بلا حقول مواصفات.");
+    }
+
+    const requiresAutomaticPrice=["buy_now","instant_quote"].includes(String(service.selling_mode));
+    if(requiresAutomaticPrice&&Number(service.pricing_rules??0)<1){
+      throw new Error("هذه الخدمة تحتاج قاعدة تسعير معتمدة قبل النشر.");
+    }
+  }
+
+  const updated=await sql`
+    with changed as (
+      update services
+      set
+        is_active=${publish},
+        is_public=${publish},
+        updated_at=now()
+      where id=${serviceId}
+      returning id,slug
+    ),
+    audit as (
+      insert into audit_events (actor_id,entity_type,entity_id,action,before_data,after_data)
+      select
+        ${access.preview?null:access.user.id},
+        'service',
+        changed.id,
+        ${publish?"published":"unpublished"},
+        jsonb_build_object('is_public',${Boolean(service.is_public)}),
+        jsonb_build_object('is_public',${publish})
+      from changed
+      returning id
+    )
+    select id,slug from changed
+  `;
+
+  if(!updated[0]) throw new Error("تعذر تحديث حالة الخدمة.");
+
+  revalidatePath("/admin/catalog/services");
+  revalidatePath("/services");
+  revalidatePath(`/services/${String(service.slug)}`);
+}

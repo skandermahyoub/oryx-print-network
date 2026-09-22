@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { findPackage, offerPackages } from "@/lib/packages";
+import { PackageConfigurator } from "@/components/package-configurator";
 
 export function generateStaticParams(){
   return offerPackages.map(pack=>({slug:pack.slug}));
@@ -55,6 +56,7 @@ export default async function PackageDetailPage({params}:{params:Promise<{slug:s
           <p>يمكن تخصيص المواصفات والكمية والخامة والتنفيذ وفق احتياج المؤسسة.</p>
         </article>)}
       </div>
+      <PackageConfigurator packageSlug={pack.slug} packageTitle={pack.title} items={pack.items}/>
       <div className="package-sales-strip">
         <div><small>طريقة البيع</small><strong>حل قابل للتخصيص</strong></div>
         <div><small>التسعير</small><strong>عرض موحد بعد تحديد العناصر</strong></div>

@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getFinanceSnapshot } from "@/lib/admin-finance";
 
 export default async function FinancePage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const finance=await getFinanceSnapshot();
 
   const money=(value:number)=>value.toLocaleString("en-US");

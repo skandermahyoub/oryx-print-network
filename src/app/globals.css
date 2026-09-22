@@ -232,3 +232,14 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .admin-module-link{margin-top:auto;border:1px solid #333;background:#0f0f10;color:#fff;border-radius:12px;padding:11px;text-align:center;font-size:13px}
 @media(max-width:900px){.track-form{grid-template-columns:1fr}.track-order-meta{grid-template-columns:1fr}.admin-partner-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.track-hero{padding:62px 20px 38px}.admin-list-page{padding:20px}.admin-list-head{align-items:flex-start;flex-direction:column}.admin-partner-grid{grid-template-columns:1fr}.partner-card-meta{grid-template-columns:1fr}}
+
+
+/* Sales campaign command center */
+.campaign-admin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.campaign-admin-grid>article{background:#18181a;border:1px solid #2a2a2d;border-radius:24px;padding:24px;display:flex;flex-direction:column;min-height:380px}
+.campaign-card-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.campaign-card-head small{color:#777;text-align:left}
+.campaign-admin-grid h2{font-size:29px;line-height:1.2;margin:22px 0 10px}.campaign-admin-grid p{color:#999;line-height:1.8;font-size:13px}
+.campaign-admin-grid blockquote{margin:12px 0 18px;padding:14px 16px;border-right:3px solid var(--red);background:#121214;border-radius:10px;color:#d0d0d2;line-height:1.8;font-size:13px}
+.campaign-card-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto}.campaign-card-kpis span{background:#111;border-radius:12px;padding:11px;font-size:10px;color:#888}.campaign-card-kpis b{display:block;color:#fff;font-size:22px;margin-bottom:3px}
+.campaign-admin-grid footer{margin-top:14px;min-height:auto;background:transparent;padding:0;border-top:1px solid #2a2a2d;padding-top:14px;display:flex;justify-content:space-between;font-size:10px;color:#777}
+@media(max-width:800px){.campaign-admin-grid{grid-template-columns:1fr}}

@@ -32,6 +32,7 @@ export type CatalogService = {
   finishings?: string[];
   fieldRules?: ServiceFieldRule[];
   preflight?: PreflightRequirement[];
+  workflow?: string[];
   tags: string[];
 };
 

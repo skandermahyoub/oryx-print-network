@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ServiceGrid } from "@/components/service-grid";
 import { SiteHeader } from "@/components/site-header";
+import { CatalogSearchBox } from "@/components/catalog-search-box";
 
 export default function Home(){
   return <main><div className="page-shell">
@@ -24,7 +25,7 @@ export default function Home(){
 
     <section className="search-strip" id="start">
       <div><span className="eyebrow">ابدأ من احتياجك</span><h2>ماذا تريد أن نصنع لك اليوم؟</h2></div>
-      <div className="search-box"><input aria-label="ابحث عن خدمة" placeholder="مثال: تقويم مكتبي 2027، مجلة مؤسسة، علب منتج، لوحة واجهة..."/><button type="button">بحث</button></div>
+      <CatalogSearchBox />
     </section>
 
     <section className="section" id="services">
@@ -40,13 +41,13 @@ export default function Home(){
         <span className="eyebrow light">حلول جاهزة للبيع</span>
         <h2>باقات تُبنى حول العميل، لا حول الماكينة.</h2>
         <p>افتتاح متجر، إطلاق منتج، مجلة ذكرى مؤسسة، موسم 2027، تجهيز فعالية، هوية أسطول والمزيد.</p>
-        <button className="ghost-button" type="button">استكشف الباقات</button>
+        <Link className="ghost-button" href="/packages">استكشف الباقات</Link>
       </div>
       <div className="feature-card dark" id="projects">
         <span className="eyebrow light">ORYX PROJECTS LAB</span>
         <h2>نخلق المشاريع بدل انتظار الطلبات.</h2>
         <p>مجلات، أدلة، حملات توعية، مبادرات مجتمعية، مشاريع رعاية وإصدارات نبتكرها ثم نبني حولها الصفقات.</p>
-        <button className="ghost-button" type="button">مشاريعنا</button>
+        <Link className="ghost-button" href="/projects">مشاريعنا</Link>
       </div>
     </section>
 
@@ -54,7 +55,7 @@ export default function Home(){
       <span className="eyebrow">شبكة الإنتاج</span>
       <h2>أوريكس أمام العميل. شبكة محترفة خلف الكواليس.</h2>
       <p>المطابع ومراكز الليزر واللوحات والتغليف والهدايا يمكنها الانضمام كشركاء إنتاج، تقديم أسعار ORYX الخاصة، واستلام الأعمال وفق القدرة والجودة والموعد.</p>
-      <div className="network-flow"><span>العميل</span><b>←</b><span>ORYX</span><b>←</b><span>محرك التوزيع</span><b>←</b><span>شريك الإنتاج</span></div>
+      <div className="network-flow"><span>العميل</span><b>←</b><span>ORYX</span><b>←</b><span>محرك التوزيع</span><b>←</b><span>شريك الإنتاج</span></div><div className="section-actions"><Link className="secondary-button" href="/partners">انضم إلى شبكة الإنتاج</Link></div>
     </section>
 
     <section className="section compact" id="magazine">

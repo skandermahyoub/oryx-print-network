@@ -243,3 +243,16 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .campaign-card-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto}.campaign-card-kpis span{background:#111;border-radius:12px;padding:11px;font-size:10px;color:#888}.campaign-card-kpis b{display:block;color:#fff;font-size:22px;margin-bottom:3px}
 .campaign-admin-grid footer{margin-top:14px;min-height:auto;background:transparent;padding:0;border-top:1px solid #2a2a2d;padding-top:14px;display:flex;justify-content:space-between;font-size:10px;color:#777}
 @media(max-width:800px){.campaign-admin-grid{grid-template-columns:1fr}}
+
+
+/* Multi-item Smart Order */
+.wizard-title-row{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.wizard-title-row h2{margin-bottom:0}
+.order-cart-badge{display:inline-flex;align-items:center;border:1px solid #cfe7d7;background:#f1fbf4;color:#1f7a45;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:900}
+.multi-item-cart{margin-bottom:18px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fbfaf8}
+.multi-item-cart-head{display:flex;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid var(--line);font-size:12px}
+.multi-item-cart-head span{display:grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:var(--red);color:#fff;font-size:10px}
+.multi-item-cart article{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 15px;border-bottom:1px solid var(--line)}
+.multi-item-cart article:last-child{border-bottom:0}.multi-item-cart small{display:block;color:var(--muted);font-size:9px;margin-bottom:3px}.multi-item-cart strong{font-size:13px}.multi-item-cart button{border:0;background:transparent;color:var(--red);font-size:10px;cursor:pointer}
+.add-another-item{margin-top:14px;width:100%;border:1px dashed #bbb5ae;background:#fff;border-radius:14px;padding:13px;color:var(--ink);font-weight:900;cursor:pointer}
+.add-another-item:hover{border-color:var(--red);color:var(--red)}

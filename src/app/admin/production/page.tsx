@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getProductionSnapshot } from "@/lib/admin-production";
 
 export default async function ProductionPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const production=await getProductionSnapshot();
 
   return <main className="admin-list-page">

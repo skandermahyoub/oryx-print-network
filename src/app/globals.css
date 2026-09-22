@@ -304,3 +304,12 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 /* Design & production dashboards */
 .production-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}.production-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:20px;padding:20px}.production-kpis small{display:block;color:#777;margin-bottom:14px}.production-kpis strong{font-size:36px}
 @media(max-width:900px){.production-kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.production-kpis{grid-template-columns:1fr}}
+
+
+/* Inventory, finance & Projects Lab admin */
+.production-kpis.four{grid-template-columns:repeat(4,1fr)}
+.finance-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.finance-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:20px;padding:20px}.finance-kpis small{display:block;color:#777;margin-bottom:14px}.finance-kpis strong{font-size:28px}
+.admin-project-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.admin-project-grid>article{background:#18181a;border:1px solid #2a2a2d;border-radius:22px;padding:22px}.admin-project-grid>article>div:first-child{display:flex;justify-content:space-between;gap:12px;align-items:center}.admin-project-grid small{color:#777}.admin-project-grid h2{font-size:28px;margin:22px 0}
+.project-admin-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}.project-admin-kpis span{background:#111;border-radius:12px;padding:11px;color:#888;font-size:10px}.project-admin-kpis b{display:block;color:#fff;font-size:20px;margin-bottom:3px}
+@media(max-width:900px){.production-kpis.four,.finance-kpis{grid-template-columns:1fr 1fr}.admin-project-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.production-kpis.four,.finance-kpis,.project-admin-kpis{grid-template-columns:1fr}}

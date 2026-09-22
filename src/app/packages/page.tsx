@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { offerPackages } from "@/lib/packages";
 
 export default function PackagesPage(){
@@ -14,7 +15,7 @@ export default function PackagesPage(){
         <h2>{pack.title}</h2>
         <p>{pack.summary}</p>
         <div className="package-items">{pack.items.map(item=><span key={item}>{item}</span>)}</div>
-        <button type="button">ابنِ العرض لهذه الباقة</button>
+        <Link href={`/packages/${pack.slug}`}>استكشف الباقة</Link>
       </article>)}
     </section>
   </main>;

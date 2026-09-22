@@ -11,7 +11,7 @@ const modules=[
 ["شبكة الشركاء","القدرات، أسعار ORYX، التقييم وتوزيع الأعمال","/admin/partners"],
 ["CRM والمبيعات","Leads، Opportunities، المتابعات والصفقات","#"],
 ["الحملات البيعية","مواسم، استهداف قطاعات، Touchpoints وقياس الصفقات","/admin/campaigns"],
-["الباقات","حلول القطاعات والعروض الموسمية","#"],
+["طلبات الباقات","حلول القطاعات والعروض الموسمية الواردة","/admin/package-requests"],
 ["ORYX Projects Lab","المجلات، المبادرات، الرعايات والمشاريع","#"],
 ["المخزون والمشتريات","الخامات، المخازن، الحجز، الشراء والاستلام","#"],
 ["المالية","الفواتير، الدفعات، التكاليف، الهوامش ومستحقات الشركاء","#"],
@@ -42,6 +42,8 @@ export default async function AdminPage(){
       <article><small>عروض أسعار مفتوحة</small><strong>{stats.openQuotes}</strong></article>
       <article><small>طلبات انضمام شركاء</small><strong>{stats.partnerApplicants}</strong></article>
       <article><small>شركاء إنتاج نشطون</small><strong>{stats.activePartners}</strong></article>
+      <article><small>طلبات باقات جديدة</small><strong>{stats.packageRequests}</strong></article>
+      <article><small>حملات بيعية نشطة</small><strong>{stats.activeSalesCampaigns}</strong></article>
     </section>
 
     <section className="admin-modules">

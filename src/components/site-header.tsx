@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-const nav=[["الخدمات","#services"],["الباقات","#packages"],["مشاريعنا","#projects"],["شركاؤنا","#partners"],["المجلة","#magazine"]];
+const nav=[
+  ["الخدمات","/services"],
+  ["الباقات","/packages"],
+  ["مشاريعنا","/projects"],
+  ["شركاؤنا","/partners"],
+  ["المجلة","/magazine"],
+];
 
 export function SiteHeader(){
   return <header className="site-header">
@@ -10,6 +16,6 @@ export function SiteHeader(){
     <nav className="desktop-nav" aria-label="التنقل الرئيسي">
       {nav.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}
     </nav>
-    <Link className="primary-button small" href="#start">ابدأ طلبك</Link>
+    <Link className="primary-button small" href="/services">ابدأ طلبك</Link>
   </header>;
 }

@@ -58,3 +58,37 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .option-grid{display:flex;flex-wrap:wrap;gap:10px}.check-option{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:10px 13px;font-size:12px;background:#fbfaf8}.sticky-order-bar{position:sticky;bottom:16px;background:var(--black);color:#fff;border-radius:22px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:20px;box-shadow:0 20px 50px rgba(0,0,0,.16)}.sticky-order-bar div{display:flex;flex-direction:column;gap:4px}.sticky-order-bar small{color:#aaa}.sticky-order-bar button{border:0;border-radius:999px;padding:13px 22px;background:var(--red);color:#fff;font-weight:900;cursor:pointer}
 @media(max-width:900px){.package-grid,.project-grid{grid-template-columns:1fr 1fr}.partner-layout{grid-template-columns:1fr}.service-detail-hero{grid-template-columns:1fr}.field-grid{grid-template-columns:1fr}}
 @media(max-width:640px){.catalog-hero{padding:72px 20px 52px}.catalog-shell,.page-grid,.partner-layout,.configurator{width:calc(100% - 28px);padding:42px 0 80px}.catalog-row{grid-template-columns:1fr}.package-grid,.project-grid,.partner-steps{grid-template-columns:1fr}.service-detail-hero{padding:60px 20px 40px}.config-panel{padding:20px}.sticky-order-bar{align-items:flex-start;flex-direction:column}.sticky-order-bar button{width:100%}}
+
+
+/* Magazine & admin */
+.article-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.article-card{background:#fff;border:1px solid var(--line);border-radius:26px;padding:30px;min-height:320px;display:flex;flex-direction:column}
+.article-meta{display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:11px}
+.article-card h2{font-size:30px;line-height:1.25;margin:18px 0 14px}
+.article-card p{color:var(--muted);line-height:1.85}
+.article-intent{margin-top:auto;padding-top:22px;font-size:11px;color:var(--red);font-weight:900}
+.article-card a{margin-top:12px;font-weight:900}
+.article-page{min-height:100vh;background:#f6f4f0;padding:70px 20px}
+.article-shell{width:min(860px,100%);margin:auto;background:#fff;border:1px solid var(--line);border-radius:30px;padding:60px}
+.article-shell h1{font-size:clamp(46px,7vw,82px);line-height:1.02;letter-spacing:-.055em;margin:18px 0 24px}
+.article-lead{font-size:20px;line-height:1.9;color:var(--muted)}
+.article-placeholder{margin:50px 0;padding:26px;border-radius:20px;background:#f4f1ec}
+.article-placeholder h2{margin-top:0}
+
+.admin-preview{min-height:100vh;background:#111;color:#fff;padding:38px}
+.admin-top{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:34px 0 44px}
+.admin-top h1{font-size:clamp(48px,7vw,84px);margin:8px 0 10px;letter-spacing:-.06em}
+.admin-top p{color:#aaa;max-width:700px;line-height:1.8}
+.admin-status{border:1px solid #333;border-radius:18px;padding:16px 20px;display:flex;flex-direction:column;gap:4px;text-align:left;direction:ltr}
+.admin-status b{color:var(--red)}.admin-status span{font-size:11px;color:#888}
+.admin-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.admin-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:22px;padding:24px}
+.admin-kpis small{display:block;color:#999;margin-bottom:18px}.admin-kpis strong{font-size:42px}
+.admin-modules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.admin-modules article{background:#18181a;border:1px solid #2a2a2d;border-radius:22px;padding:24px;min-height:250px;display:flex;flex-direction:column}
+.admin-modules article>span{color:var(--red);font-size:11px;font-weight:900}
+.admin-modules h2{font-size:22px;margin:20px 0 10px}
+.admin-modules p{color:#999;line-height:1.7;font-size:13px}
+.admin-modules button{margin-top:auto;border:1px solid #333;background:#0f0f10;color:#fff;border-radius:12px;padding:11px;cursor:pointer}
+@media(max-width:900px){.article-grid{grid-template-columns:1fr}.admin-kpis{grid-template-columns:1fr 1fr}.admin-modules{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.article-shell{padding:34px 22px}.admin-preview{padding:20px}.admin-top{align-items:flex-start;flex-direction:column}.admin-kpis,.admin-modules{grid-template-columns:1fr}}

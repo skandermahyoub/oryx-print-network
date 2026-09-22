@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getAdminProjects } from "@/lib/admin-projects";
 
 export default async function ProjectsAdminPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const projects=await getAdminProjects();
 
   return <main className="admin-list-page">

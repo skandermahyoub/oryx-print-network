@@ -1,31 +1,39 @@
 import Link from "next/link";
-import { serviceCatalog } from "@/lib/service-catalog";
+import { getCatalogSummaries } from "@/lib/catalog-repository";
 
-const groups=Array.from(new Set(serviceCatalog.map(s=>s.category)));
+export default async function ServicesPage(){
+  const services=await getCatalogSummaries();
+  const groups=Array.from(new Set(services.map(service=>service.category)));
 
-export default function ServicesPage(){
   return <main className="catalog-page">
     <section className="catalog-hero">
       <span className="eyebrow">ORYX SERVICE UNIVERSE</span>
       <h1>موسوعة خدمات، لا قائمة أسعار.</h1>
-      <p>كل خدمة لها مواصفات وتشطيبات وحقول وتسعير ومسار إنتاج خاص بها.</p>
+      <p>كل خدمة لها صفحة مستقلة ومواصفات وتشطيبات وتسعير ومسار إنتاج خاص بها. الكتالوج مصمم ليتوسع دون إعادة برمجة المنصة.</p>
+      <div className="catalog-metrics">
+        <span><strong>{services.length}</strong> خدمة قابلة للبيع</span>
+        <span><strong>{groups.length}</strong> تصنيف تشغيلي</span>
+      </div>
     </section>
 
     <section className="catalog-shell">
-      {groups.map(group=><div className="catalog-group" key={group}>
-        <div className="catalog-group-head">
-          <h2>{group}</h2>
-          <span>{serviceCatalog.filter(s=>s.category===group).length} خدمة مبدئية</span>
-        </div>
-        <div className="catalog-list">
-          {serviceCatalog.filter(s=>s.category===group).map(service=>
-            <Link className="catalog-row" href={`/services/${service.slug}`} key={service.slug}>
-              <div><strong>{service.title}</strong><p>{service.summary}</p></div>
-              <div className="catalog-row-meta"><span>{service.pricingMode==="instant"?"تسعير مباشر":"عرض سعر"}</span><b>←</b></div>
-            </Link>
-          )}
-        </div>
-      </div>)}
+      {groups.map(group=>{
+        const groupServices=services.filter(service=>service.category===group);
+        return <div className="catalog-group" key={group}>
+          <div className="catalog-group-head">
+            <h2>{group}</h2>
+            <span>{groupServices.length} خدمة</span>
+          </div>
+          <div className="catalog-list">
+            {groupServices.map(service=>
+              <Link className="catalog-row" href={`/services/${service.slug}`} key={service.slug}>
+                <div><strong>{service.title}</strong><p>{service.summary}</p></div>
+                <div className="catalog-row-meta"><span>{service.pricingMode==="instant"?"تسعير مباشر":"عرض سعر"}</span><b>←</b></div>
+              </Link>
+            )}
+          </div>
+        </div>;
+      })}
     </section>
   </main>;
 }

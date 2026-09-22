@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getPackageRequests } from "@/lib/admin-package-requests";
 
 const labels:Record<string,string>={
@@ -12,7 +11,6 @@ const labels:Record<string,string>={
 };
 
 export default async function PackageRequestsPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const requests=await getPackageRequests();
 
   return <main className="admin-list-page">

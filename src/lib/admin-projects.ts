@@ -19,15 +19,28 @@ export async function getAdminProjects():Promise<ProjectAdminRow[]>{
     const rows=await sql`
       select
         p.id,p.name_ar,p.project_type,p.status,p.currency,
-        count(distinct ps.id)::integer as sponsors,
-        count(distinct pt.id) filter (where pt.status not in ('completed','cancelled'))::integer as open_tasks,
-        coalesce(sum(distinct pbl.planned_amount) filter (where pbl.line_type in ('revenue','sponsorship','advertising')),0)::numeric(14,2) as planned_revenue,
-        coalesce(sum(distinct pbl.planned_amount) filter (where pbl.line_type='cost'),0)::numeric(14,2) as planned_cost
+        coalesce(sponsor_stats.sponsors,0)::integer as sponsors,
+        coalesce(task_stats.open_tasks,0)::integer as open_tasks,
+        coalesce(budget_stats.planned_revenue,0)::numeric(14,2) as planned_revenue,
+        coalesce(budget_stats.planned_cost,0)::numeric(14,2) as planned_cost
       from projects p
-      left join project_sponsors ps on ps.project_id=p.id
-      left join project_tasks pt on pt.project_id=p.id
-      left join project_budget_lines pbl on pbl.project_id=p.id
-      group by p.id
+      left join lateral (
+        select count(*)::integer as sponsors
+        from project_sponsors ps
+        where ps.project_id=p.id
+      ) sponsor_stats on true
+      left join lateral (
+        select count(*)::integer as open_tasks
+        from project_tasks pt
+        where pt.project_id=p.id and pt.status not in ('completed','cancelled')
+      ) task_stats on true
+      left join lateral (
+        select
+          coalesce(sum(planned_amount) filter (where line_type in ('revenue','sponsorship','advertising')),0) as planned_revenue,
+          coalesce(sum(planned_amount) filter (where line_type='cost'),0) as planned_cost
+        from project_budget_lines pbl
+        where pbl.project_id=p.id
+      ) budget_stats on true
       order by p.updated_at desc
     `;
     return rows.map(row=>({

@@ -442,3 +442,10 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .builder-save-summary{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0}.builder-save-summary span{border:1px solid #333;border-radius:999px;padding:7px 10px;color:#aaa;font-size:9px}.builder-security-note{display:block;color:#777;font-size:9px;line-height:1.6;margin-top:10px}
 @media(max-width:1200px){.builder-field-row.advanced{grid-template-columns:36px 1fr 1fr 120px}.builder-field-row.advanced .builder-options-input{grid-column:2/-1}.builder-field-row.advanced label{margin-top:5px}.builder-finishing-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.builder-field-row.advanced{grid-template-columns:30px 1fr}.builder-field-row.advanced>input,.builder-field-row.advanced>select,.builder-field-row.advanced .builder-options-input{grid-column:2}.builder-field-row.advanced label{grid-column:2}.builder-finishing-grid{grid-template-columns:1fr}}
+
+
+/* Catalog governance */
+.admin-catalog-actions{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap}
+.catalog-governance-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.catalog-governance-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:18px;padding:18px}.catalog-governance-kpis small{display:block;color:#777;margin-bottom:12px}.catalog-governance-kpis strong{font-size:34px}
+.catalog-dna-pills{display:flex;gap:4px;flex-wrap:wrap}.catalog-dna-pills span{border:1px solid #333;border-radius:999px;padding:5px 7px;font-size:8px;color:#aaa}.catalog-governance-table form{margin:0}.catalog-governance-table button{border-radius:9px;padding:8px 10px;font-size:9px;font-weight:900;cursor:pointer}.catalog-publish{background:#1f8d4d;border:0;color:#fff}.catalog-unpublish{background:#251719;border:1px solid #5c2a2f;color:#ff9ba0}
+@media(max-width:800px){.catalog-governance-kpis{grid-template-columns:1fr 1fr}}@media(max-width:520px){.catalog-governance-kpis{grid-template-columns:1fr}}

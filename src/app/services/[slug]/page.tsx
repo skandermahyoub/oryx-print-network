@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCatalogService } from "@/lib/catalog-repository";
@@ -5,6 +6,17 @@ import { serviceCatalog, type ServiceField } from "@/lib/service-catalog";
 
 export function generateStaticParams(){
   return serviceCatalog.map(service=>({slug:service.slug}));
+}
+
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{
+  const {slug}=await params;
+  const service=await getCatalogService(slug);
+  if(!service) return {};
+  return {
+    title:`${service.title} | ORYX Print Network`,
+    description:service.summary,
+    openGraph:{title:service.title,description:service.summary,type:"website"}
+  };
 }
 
 function FieldControl({field}:{field:ServiceField}){

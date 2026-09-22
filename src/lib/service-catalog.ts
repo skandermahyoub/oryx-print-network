@@ -1,7 +1,7 @@
 export type ServiceField = {
   key: string;
   label: string;
-  type: "select" | "number" | "text" | "boolean" | "file";
+  type: "select" | "number" | "text" | "boolean" | "file" | "textarea" | "date" | "location" | "color" | "dimension";
   required?: boolean;
   options?: string[];
   unit?: string;

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { findService, serviceCatalog } from "@/lib/service-catalog";
 
@@ -55,7 +56,7 @@ export default async function ServicePage({params}:{params:Promise<{slug:string}
 
       <div className="sticky-order-bar">
         <div><small>ORYX SMART ORDER</small><strong>المواصفات تُحفظ مرة واحدة وتتحرك مع الطلب حتى التسليم.</strong></div>
-        <button type="button">متابعة الطلب</button>
+        <Link className="primary-button" href={`/order/new?service=${service.slug}`}>متابعة الطلب</Link>
       </div>
     </section>
   </main>;

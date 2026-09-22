@@ -127,7 +127,7 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
                     <b>{candidate.cost===null?"بدون سعر":`${candidate.cost.toLocaleString("en-US")} ${candidate.currency}`}</b>
                     {candidate.status==="selected"?<em>مختار</em>:<form action={assignPartnerAction}>
                       <input type="hidden" name="orderId" value={detail.order.id}/>
-                      <input type="hidden" name="sourcingRequestId" value={item.sourcingRequestId}/>
+                      <input type="hidden" name="sourcingRequestId" value={item.sourcingRequestId??""}/>
                       <input type="hidden" name="partnerId" value={candidate.partnerId}/>
                       <button type="submit">إسناد</button>
                     </form>}

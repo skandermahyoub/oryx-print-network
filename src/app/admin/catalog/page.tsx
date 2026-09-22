@@ -11,7 +11,7 @@ export default async function AdminCatalogPage(){
       <span className="eyebrow">ORYX SERVICE BUILDER</span>
       <h1>ابنِ خدمة تشغيلية جديدة دون برمجة صفحة.</h1>
       <p>الخدمة الجديدة تحفظ كمسودة في Neon مع حقول مواصفاتها وتشطيباتها، وتبقى مخفية عن العملاء حتى اعتمادها.</p>
-      <div className="catalog-metrics">
+      <div className="admin-catalog-actions"><a className="secondary-button" href="/admin/catalog/services">إدارة كل الخدمات</a></div><div className="catalog-metrics">
         <span><strong>{options.categories.length}</strong> تصنيف متاح</span>
         <span><strong>{options.finishings.length}</strong> تشطيب في المكتبة</span>
       </div>

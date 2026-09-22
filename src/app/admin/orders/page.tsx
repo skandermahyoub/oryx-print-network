@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getAdminOrders } from "@/lib/admin-orders";
 
 export default async function AdminOrdersPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const orders=await getAdminOrders();
 
   return <main className="admin-list-page">

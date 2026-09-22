@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getInventorySnapshot } from "@/lib/admin-inventory";
 
 export default async function InventoryPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const inventory=await getInventorySnapshot();
 
   return <main className="admin-list-page">

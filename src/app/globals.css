@@ -132,3 +132,17 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .builder-side{position:sticky;top:18px;background:#fff;color:#111;border-radius:24px;padding:26px}.builder-side h2{font-size:30px;margin:12px 0}.builder-side p{color:#666;line-height:1.8}.builder-object{direction:ltr;text-align:center;font-family:monospace;background:#f4f1ec;border-radius:18px;padding:22px;line-height:1.9;margin:24px 0}.builder-side .primary-button{width:100%}
 @media(max-width:1000px){.builder-preview{grid-template-columns:1fr}.builder-side{position:static}.builder-field-row{grid-template-columns:32px 1fr 1fr}.builder-field-row label,.builder-field-row select,.builder-field-row button{grid-column:auto}.wizard-service-list{grid-template-columns:1fr 1fr}.order-summary{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.order-page-head{padding:60px 20px 36px}.wizard-progress{grid-template-columns:repeat(5,1fr)}.wizard-progress button{justify-content:center;padding:9px}.wizard-progress b{display:none}.wizard-body{padding:22px}.wizard-service-list,.choice-grid,.choice-grid.two,.order-summary{grid-template-columns:1fr}.admin-catalog-page{padding:20px}.builder-field-row{grid-template-columns:1fr}.builder-field-row>*{grid-column:1}.builder-tags{grid-template-columns:1fr 1fr}}
+
+
+/* Live submission states */
+.wizard-progress.six{grid-template-columns:repeat(6,1fr)}
+.customer-summary{margin-top:20px;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.customer-summary strong{font-size:18px}.customer-summary span{font-size:12px;color:var(--muted)}
+.order-created{border:1px solid #cfe7d7;background:#f1fbf4;border-radius:24px;padding:30px}
+.order-created>span{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#1f8d4d;color:#fff;font-weight:900}
+.order-created h3{font-size:32px;margin:16px 0 8px}.order-created p{color:#4d6255;line-height:1.8}
+.form-success,.form-error{margin:12px 0 0;border-radius:12px;padding:11px 13px;font-size:12px;line-height:1.6}
+.form-success{background:rgba(47,176,92,.14);color:#7be39b}.form-error{background:rgba(214,31,38,.12);color:#ff8b90}
+.partner-form .hp-field{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important}
+.partner-form button:disabled,.wizard-footer button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:640px){.wizard-progress.six{grid-template-columns:repeat(6,1fr)}}

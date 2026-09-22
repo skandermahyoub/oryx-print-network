@@ -143,6 +143,14 @@ export async function getCatalogService(slug:string):Promise<CatalogService|unde
       order by sort_order,label_ar
     `;
 
+    const workflow=await sql`
+      select ws.name_ar
+      from production_workflows pw
+      join workflow_steps ws on ws.workflow_id=pw.id
+      where pw.service_id=${service.id} and pw.is_default=true and pw.is_active=true
+      order by pw.version desc,ws.sort_order
+    `;
+
     return {
       slug:String(service.slug),
       category:String(service.category_name),
@@ -164,6 +172,7 @@ export async function getCatalogService(slug:string):Promise<CatalogService|unde
         requiredBeforeQuote:Boolean(row.required_before_quote),
         requiredBeforeProduction:Boolean(row.required_before_production)
       })),
+      workflow:workflow.map(row=>String(row.name_ar)),
       tags:[]
     };
   }catch{

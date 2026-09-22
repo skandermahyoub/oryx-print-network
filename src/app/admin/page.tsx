@@ -5,10 +5,10 @@ import { getAdminStats } from "@/lib/admin-stats";
 const modules=[
 ["الكتالوج ومحرك الخدمات","الأقسام، الخدمات، الحقول الديناميكية، الخامات والتشطيبات","/admin/catalog"],
 ["التسعير","قواعد السعر، الكميات، المعادلات، العاجل والخصومات","#"],
-["الطلبات وعروض الأسعار","رحلة الطلب من المسودة إلى التسليم","#"],
+["الطلبات وعروض الأسعار","رحلة الطلب من المسودة إلى التسليم","/admin/orders"],
 ["استوديو التصميم","Brief، الإصدارات، المراجعات والاعتماد","#"],
 ["الإنتاج والجودة","أوامر العمل، المراحل، الهالك، الصور وQC","#"],
-["شبكة الشركاء","القدرات، أسعار ORYX، التقييم وتوزيع الأعمال","#"],
+["شبكة الشركاء","القدرات، أسعار ORYX، التقييم وتوزيع الأعمال","/admin/partners"],
 ["CRM والمبيعات","Leads، Opportunities، المتابعات والصفقات","#"],
 ["الباقات","حلول القطاعات والعروض الموسمية","#"],
 ["ORYX Projects Lab","المجلات، المبادرات، الرعايات والمشاريع","#"],
@@ -48,7 +48,7 @@ export default async function AdminPage(){
         <span>{String(index+1).padStart(2,"0")}</span>
         <h2>{title}</h2>
         <p>{desc}</p>
-        {href==="#"?<button type="button" disabled>قيد البناء</button>:<Link href={href}>فتح الوحدة</Link>}
+        {href==="#"?<button type="button" disabled>قيد البناء</button>:<Link className="admin-module-link" href={href}>فتح الوحدة</Link>}
       </article>)}
     </section>
   </main>;

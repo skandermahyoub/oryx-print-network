@@ -16,9 +16,10 @@ export async function createDraftQuoteFromOrder(orderId:string,validDays=7){
       where oi.order_id=${orderId}
     ),
     new_quote as (
-      insert into quotes (customer_id,status,currency,subtotal,total,valid_until,notes)
+      insert into quotes (customer_id,source_order_id,status,currency,subtotal,total,valid_until,notes)
       select
         source_order.customer_id,
+        source_order.id,
         'draft',
         source_order.currency,
         totals.subtotal,
@@ -30,10 +31,11 @@ export async function createDraftQuoteFromOrder(orderId:string,validDays=7){
     ),
     new_items as (
       insert into quote_items (
-        quote_id,service_id,quantity,specifications,unit_price,total_price,cost_estimate,margin_estimate
+        quote_id,source_order_item_id,service_id,quantity,specifications,unit_price,total_price,cost_estimate,margin_estimate
       )
       select
         new_quote.id,
+        oi.id,
         oi.service_id,
         oi.quantity,
         oi.specifications,

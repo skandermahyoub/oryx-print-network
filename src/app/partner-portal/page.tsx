@@ -1,12 +1,21 @@
 import Link from "next/link";
 import { requirePartnerAccess } from "@/lib/auth/partner-access";
 import { getPartnerPortalSnapshot } from "@/lib/partner-portal";
+import { getCatalogSummaries } from "@/lib/catalog-repository";
+import {
+  acceptPartnerJobAction,
+  declinePartnerJobAction,
+  submitPartnerPriceAction
+} from "./actions";
 
 export const dynamic="force-dynamic";
 
 export default async function PartnerPortalPage(){
   const access=await requirePartnerAccess();
-  const snapshot=await getPartnerPortalSnapshot(access.partnerId);
+  const [snapshot,services]=await Promise.all([
+    getPartnerPortalSnapshot(access.partnerId),
+    getCatalogSummaries()
+  ]);
 
   const pendingSettlements=snapshot.settlements
     .filter(item=>item.status==="pending")
@@ -36,7 +45,7 @@ export default async function PartnerPortalPage(){
       <div className="account-section-head"><h2>أعمال الإنتاج</h2><span>الأعمال المسندة إلى منشأتك</span></div>
       <div className="admin-table-wrap">
         <table className="partner-table">
-          <thead><tr><th>WO</th><th>الطلب</th><th>الخدمة</th><th>الحالة</th><th>تكلفة التنفيذ</th><th>الموعد</th></tr></thead>
+          <thead><tr><th>WO</th><th>الطلب</th><th>الخدمة</th><th>الحالة</th><th>تكلفة التنفيذ</th><th>الموعد</th><th>الإجراء</th></tr></thead>
           <tbody>
             {snapshot.jobs.length?snapshot.jobs.map(job=><tr key={job.id}>
               <td><strong>#{job.workOrderNumber}</strong></td>
@@ -45,10 +54,54 @@ export default async function PartnerPortalPage(){
               <td><span className="status-pill">{job.status}</span></td>
               <td>{job.quotedCost===null?"—":`${job.quotedCost.toLocaleString("en-US")} ${job.currency}`}</td>
               <td>{job.promisedAt?new Date(job.promisedAt).toLocaleString("ar-YE"):"—"}</td>
-            </tr>):<tr><td colSpan={6} className="empty-cell light">لا توجد أعمال مفتوحة حاليًا.</td></tr>}
+              <td>{job.status==="offered"?<div className="partner-job-actions">
+                <form action={acceptPartnerJobAction}>
+                  <input type="hidden" name="partnerJobId" value={job.id}/>
+                  <button className="accept" type="submit">قبول</button>
+                </form>
+                <form action={declinePartnerJobAction}>
+                  <input type="hidden" name="partnerJobId" value={job.id}/>
+                  <input type="hidden" name="reason" value="Declined from partner portal"/>
+                  <button className="decline" type="submit">رفض</button>
+                </form>
+              </div>:<span className="partner-job-static">قيد التنفيذ</span>}</td>
+            </tr>):<tr><td colSpan={7} className="empty-cell light">لا توجد أعمال مفتوحة حاليًا.</td></tr>}
           </tbody>
         </table>
       </div>
+    </section>
+
+    <section className="partner-price-submit partner-portal-section">
+      <div className="account-section-head">
+        <div><h2>قدّم سعر ORYX</h2><p>السعر هنا تكلفة تنفيذ خاصة بالشبكة، وليس سعر بيع العميل النهائي.</p></div>
+      </div>
+      <form action={submitPartnerPriceAction} className="partner-price-form">
+        <label>الخدمة
+          <select name="serviceSlug" required defaultValue="">
+            <option value="" disabled>اختر الخدمة</option>
+            {services.map(service=><option key={service.slug} value={service.slug}>{service.title} · {service.category}</option>)}
+          </select>
+        </label>
+        <label>التكلفة الأساسية
+          <input name="baseCost" type="number" min="0" step="0.01" required placeholder="0"/>
+        </label>
+        <label>الحد الأدنى للكمية
+          <input name="minimumQuantity" type="number" min="0" step="0.001" placeholder="اختياري"/>
+        </label>
+        <label>وقت التنفيذ الطبيعي
+          <input name="normalLeadHours" type="number" min="1" step="1" placeholder="بالساعات"/>
+        </label>
+        <label>وقت التنفيذ العاجل
+          <input name="urgentLeadHours" type="number" min="1" step="1" placeholder="بالساعات"/>
+        </label>
+        <label>صلاحية السعر
+          <input name="validUntil" type="date"/>
+        </label>
+        <label className="wide">ملاحظات وشروط
+          <textarea name="notes" rows={3} placeholder="الخامة، الكمية، الاستثناءات أو أي شروط مهمة"/>
+        </label>
+        <button className="primary-button" type="submit">إرسال السعر للمراجعة</button>
+      </form>
     </section>
 
     <section className="partner-portal-grid">

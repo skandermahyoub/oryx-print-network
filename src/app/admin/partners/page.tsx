@@ -28,7 +28,7 @@ export default async function AdminPartnersPage(){
           <span className="status-pill">{statusLabels[partner.status]??partner.status}</span>
           <small>{partner.city??"مدينة غير محددة"}</small>
         </div>
-        <h2>{partner.name}</h2>
+        <h2><Link className="partner-detail-link" href={`/admin/partners/${partner.id}`}>{partner.name}</Link></h2>
         <p>{partner.capabilities??"لم تُسجل القدرات التفصيلية بعد."}</p>
         <div className="partner-card-meta">
           <span><b>الهاتف</b>{partner.phone??"—"}</span>

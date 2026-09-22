@@ -172,3 +172,13 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .catalog-limit-note{color:var(--muted);font-size:11px;margin-top:14px}
 .field-card textarea{border:1px solid var(--line);border-radius:13px;padding:13px;background:#fbfaf8;resize:vertical;min-height:110px}
 @media(max-width:760px){.catalog-picker-tools{grid-template-columns:1fr}.catalog-picker-tools>span{justify-self:start}}
+
+
+/* Pricing preview */
+.pricing-preview{margin-top:18px;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.pricing-preview small{font-size:10px;letter-spacing:.12em;font-weight:900}
+.pricing-preview strong{font-size:26px}
+.pricing-preview span{font-size:12px;line-height:1.7}
+.pricing-preview.quote{background:#fff4e6;border:1px solid #efd7b2}.pricing-preview.quote small{color:#9a5b00}.pricing-preview.quote span{color:#765a34}
+.pricing-preview.priced{background:#effaf2;border:1px solid #c8e6d0}.pricing-preview.priced small{color:#1f8d4d}.pricing-preview.priced span{color:#4d6255}
+.pricing-preview.muted{background:#f2f0ed;border:1px solid var(--line);color:var(--muted);font-size:12px}

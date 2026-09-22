@@ -77,7 +77,6 @@ export function SmartOrderWizard({initialService}:Props){
   const [step,setStep]=useState(0);
   const [serviceSlug,setServiceSlug]=useState(initialFallback?.slug??"");
   const [service,setService]=useState<CatalogService|undefined>(initialFallback);
-  const [serviceLoading,setServiceLoading]=useState(false);
   const [specs,setSpecs]=useState<Record<string,string>>({});
   const [selectedFinishings,setSelectedFinishings]=useState<string[]>([]);
   const [design,setDesign]=useState("ready");
@@ -106,8 +105,6 @@ export function SmartOrderWizard({initialService}:Props){
     if(!serviceSlug) return;
     let active=true;
     const fallback=findService(serviceSlug);
-    if(fallback) setService(fallback);
-    setServiceLoading(true);
 
     fetch(`/api/catalog/${encodeURIComponent(serviceSlug)}`)
       .then(response=>response.ok?response.json():Promise.reject(new Error("service")))
@@ -116,11 +113,12 @@ export function SmartOrderWizard({initialService}:Props){
       })
       .catch(()=>{
         if(active) setService(fallback);
-      })
-      .finally(()=>active&&setServiceLoading(false));
+      });
 
     return ()=>{active=false;};
   },[serviceSlug]);
+
+  const serviceLoading=Boolean(serviceSlug&&service?.slug!==serviceSlug);
 
   const categories=useMemo(()=>Array.from(new Set(catalog.map(item=>item.category))),[catalog]);
   const filteredCatalog=useMemo(()=>{
@@ -134,6 +132,7 @@ export function SmartOrderWizard({initialService}:Props){
 
   function chooseService(slug:string){
     setServiceSlug(slug);
+    setService(findService(slug));
     setSpecs({});
     setSelectedFinishings([]);
     setSubmitState("idle");

@@ -1,0 +1,82 @@
+import { redirect } from "next/navigation";
+import { auth, authConfigured } from "@/lib/auth/server";
+import { databaseConfigured, getSql } from "@/lib/db";
+
+export type StaffAccess={
+  preview:boolean;
+  user:{
+    id:string;
+    authUserId:string;
+    email:string|null;
+    name:string|null;
+  };
+  roles:string[];
+  permissions:string[];
+};
+
+export async function requireStaffAccess():Promise<StaffAccess>{
+  if(!authConfigured){
+    if(process.env.ENABLE_ADMIN_PREVIEW==="true"){
+      return {
+        preview:true,
+        user:{id:"preview",authUserId:"preview",email:null,name:"Preview Admin"},
+        roles:["preview"],
+        permissions:["*"]
+      };
+    }
+    redirect("/auth/sign-in");
+  }
+
+  const {data:session}=await auth.getSession();
+  if(!session?.user) redirect("/auth/sign-in");
+
+  if(!databaseConfigured()) redirect("/auth/sign-in");
+
+  const authUser=session.user as {id:string;email?:string|null;name?:string|null};
+  const sql=getSql();
+
+  const rows=await sql`
+    select
+      au.id,
+      au.auth_user_id,
+      au.email,
+      au.display_name,
+      au.status,
+      au.user_type,
+      coalesce(array_agg(distinct r.key) filter (where r.key is not null),'{}') as roles,
+      coalesce(array_agg(distinct p.key) filter (where p.key is not null),'{}') as permissions
+    from app_users au
+    left join user_roles ur on ur.user_id=au.id
+    left join roles r on r.id=ur.role_id
+    left join role_permissions rp on rp.role_id=r.id
+    left join permissions p on p.id=rp.permission_id
+    where au.auth_user_id=${authUser.id}
+    group by au.id
+    limit 1
+  `;
+
+  const record=rows[0];
+  if(!record||record.status!=="active"||record.user_type!=="staff"){
+    redirect("/");
+  }
+
+  return {
+    preview:false,
+    user:{
+      id:String(record.id),
+      authUserId:String(record.auth_user_id),
+      email:record.email?String(record.email):authUser.email??null,
+      name:record.display_name?String(record.display_name):authUser.name??null
+    },
+    roles:Array.isArray(record.roles)?record.roles.map(String):[],
+    permissions:Array.isArray(record.permissions)?record.permissions.map(String):[]
+  };
+}
+
+export async function requirePermission(permission:string){
+  const access=await requireStaffAccess();
+  if(access.permissions.includes("*")||access.permissions.includes(permission)){
+    return access;
+  }
+  redirect("/admin");
+}

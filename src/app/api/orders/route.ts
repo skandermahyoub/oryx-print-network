@@ -5,6 +5,7 @@ import { databaseConfigured, getSql } from "@/lib/db";
 const orderSchema=z.object({
   serviceSlug:z.string().min(1).max(120),
   specs:z.record(z.string(),z.string()).default({}),
+  finishings:z.array(z.string().max(160)).max(40).default([]),
   design:z.enum(["ready","oryx","idea"]),
   fulfilment:z.enum(["pickup","delivery"]),
   customer:z.object({
@@ -31,6 +32,7 @@ export async function POST(request:Request){
   const quantity=Number.isFinite(quantityRaw)&&quantityRaw>0?quantityRaw:1;
   const specifications=JSON.stringify({
     fields:data.specs,
+    finishings:data.finishings,
     design:data.design,
     fulfilment:data.fulfilment,
     source:"web-smart-order"

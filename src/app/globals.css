@@ -293,3 +293,9 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .overdue-panel{margin-top:14px}.crm-overdue-list{display:grid;gap:7px}.crm-overdue-list article{display:flex;justify-content:space-between;gap:20px;background:#111;border-radius:12px;padding:11px}.crm-overdue-list span{font-size:10px;color:#888}.empty-note{color:#777;font-size:12px}
 @media(max-width:900px){.crm-kpis{grid-template-columns:1fr 1fr}.crm-layout{grid-template-columns:1fr}}
 @media(max-width:640px){.crm-kpis{grid-template-columns:1fr}.pipeline-columns{grid-template-columns:1fr}.crm-lead-list article{grid-template-columns:1fr}}
+
+
+/* Pricing administration */
+.pricing-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.pricing-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:20px;padding:20px}.pricing-kpis small{display:block;color:#777;margin-bottom:14px}.pricing-kpis strong{font-size:35px}
+.status-pill.ready{background:rgba(47,176,92,.13);border-color:rgba(47,176,92,.25);color:#8ee7aa}.status-pill.warning{background:rgba(232,166,52,.12);border-color:rgba(232,166,52,.24);color:#f0bf69}
+@media(max-width:800px){.pricing-kpis{grid-template-columns:1fr 1fr}}@media(max-width:520px){.pricing-kpis{grid-template-columns:1fr}}

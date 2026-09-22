@@ -49,7 +49,7 @@ export async function getPartnerPortalSnapshot(partnerId:string):Promise<Partner
       join orders o on o.id=oi.order_id
       join services s on s.id=oi.service_id
       where pj.partner_id=${partnerId}
-        and pj.status not in ('completed','cancelled')
+        and pj.status not in ('completed','cancelled','declined')
       order by wo.promised_at nulls last,pj.created_at desc
       limit 100
     `,

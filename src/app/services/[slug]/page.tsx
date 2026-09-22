@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCatalogService } from "@/lib/catalog-repository";
-import { serviceCatalog } from "@/lib/service-catalog";
+import { serviceCatalog, type ServiceField } from "@/lib/service-catalog";
 
 export function generateStaticParams(){
   return serviceCatalog.map(service=>({slug:service.slug}));
 }
 
-function FieldControl({field}:{field:Awaited<ReturnType<typeof getCatalogService>> extends infer S ? S extends {fields:Array<infer F>} ? F : never : never}){
-  if(!field) return null;
+function FieldControl({field}:{field:ServiceField}){
   if(field.type==="select"){
     return <select defaultValue=""><option value="" disabled>اختر</option>{field.options?.map(option=><option key={option}>{option}</option>)}</select>;
   }

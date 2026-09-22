@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getPricingSnapshot } from "@/lib/admin-pricing";
 
 const modeLabels:Record<string,string>={
@@ -12,7 +11,6 @@ const modeLabels:Record<string,string>={
 };
 
 export default async function PricingAdminPage(){
-  if(process.env.ENABLE_ADMIN_PREVIEW!=="true") notFound();
   const pricing=await getPricingSnapshot();
 
   return <main className="admin-list-page">

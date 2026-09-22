@@ -283,3 +283,13 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .preflight-service-grid article{border:1px solid var(--line);background:#fbfaf8;border-radius:14px;padding:14px;min-height:100px;display:flex;flex-direction:column;justify-content:space-between;gap:12px}
 .preflight-service-grid strong{font-size:13px;line-height:1.5}.preflight-service-grid small{font-size:9px;color:var(--red)}
 @media(max-width:760px){.preflight-service-grid{grid-template-columns:1fr}}
+
+
+/* CRM command center */
+.crm-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.crm-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:20px;padding:20px}.crm-kpis small{display:block;color:#777;margin-bottom:16px}.crm-kpis strong{font-size:28px;line-height:1.15}
+.crm-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.crm-panel{background:#18181a;border:1px solid #2a2a2d;border-radius:22px;padding:22px}.crm-panel-head{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:18px}.crm-panel-head h2{margin:0;font-size:23px}.crm-panel-head span,.crm-panel-head a{font-size:10px;color:#888}
+.pipeline-columns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.pipeline-columns article{background:#111;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px}.pipeline-columns small{color:#888}.pipeline-columns strong{font-size:30px}.pipeline-columns span{font-size:10px;color:#777}
+.crm-lead-list{display:grid;gap:7px}.crm-lead-list article{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:#111;border-radius:13px;padding:12px}.crm-lead-list strong{display:block}.crm-lead-list small{display:block;color:#777;margin-top:3px}.crm-lead-list>article>span{font-size:9px;color:#888}.crm-lead-list b{font-size:9px;color:var(--red)}
+.overdue-panel{margin-top:14px}.crm-overdue-list{display:grid;gap:7px}.crm-overdue-list article{display:flex;justify-content:space-between;gap:20px;background:#111;border-radius:12px;padding:11px}.crm-overdue-list span{font-size:10px;color:#888}.empty-note{color:#777;font-size:12px}
+@media(max-width:900px){.crm-kpis{grid-template-columns:1fr 1fr}.crm-layout{grid-template-columns:1fr}}
+@media(max-width:640px){.crm-kpis{grid-template-columns:1fr}.pipeline-columns{grid-template-columns:1fr}.crm-lead-list article{grid-template-columns:1fr}}

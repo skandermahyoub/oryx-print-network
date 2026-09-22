@@ -28,7 +28,7 @@ export default function SignInPage(){
         <button className="primary-button" disabled={isPending}>{isPending?"جاري التحقق...":"تسجيل الدخول"}</button>
       </form>
 
-      <Link href="/" className="auth-back">العودة إلى الواجهة العامة ←</Link>
+      <p className="auth-switch">ليس لديك حساب؟ <Link href="/auth/sign-up">إنشاء حساب جديد</Link></p><Link href="/" className="auth-back">العودة إلى الواجهة العامة ←</Link>
     </section>
   </main>;
 }

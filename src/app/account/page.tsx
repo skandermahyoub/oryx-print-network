@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { getCustomerPortalSnapshot } from "@/lib/customer-portal";
-import { acceptCustomerQuoteAction, decideCustomerDesignAction, requestRewardRedemptionAction } from "./actions";
+import { acceptCustomerQuoteAction, decideCustomerDesignAction, markCustomerNotificationReadAction, requestRewardRedemptionAction } from "./actions";
 
 export const dynamic="force-dynamic";
 
@@ -27,6 +27,23 @@ export default async function AccountPage(){
       <article><small>النقاط</small><strong>{snapshot.loyalty.points}</strong></article>
       <article><small>المستوى</small><strong>{snapshot.loyalty.tier}</strong></article>
       <article><small>تصاميم للمراجعة</small><strong>{snapshot.designs.filter(item=>item.status==="waiting_approval").length}</strong></article>
+    </section>
+
+    <section className="customer-account-section">
+      <div className="account-section-head"><h2>الإشعارات</h2><span>{snapshot.notifications.filter(item=>item.status!=="read").length} جديد</span></div>
+      <div className="customer-notification-list">
+        {snapshot.notifications.length?snapshot.notifications.map(item=><article key={item.id} className={item.status==="read"?"read":""}>
+          <div>
+            <small>{new Date(item.createdAt).toLocaleString("ar-YE")}</small>
+            <strong>{item.subject}</strong>
+            <p>{item.body}</p>
+          </div>
+          {item.status!=="read"?<form action={markCustomerNotificationReadAction}>
+            <input type="hidden" name="notificationId" value={item.id}/>
+            <button type="submit">تمت القراءة</button>
+          </form>:<span>مقروء</span>}
+        </article>):<div className="account-empty">لا توجد إشعارات بعد.</div>}
+      </div>
     </section>
 
     <section className="customer-account-section">

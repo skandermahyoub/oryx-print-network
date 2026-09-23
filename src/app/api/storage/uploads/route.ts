@@ -16,6 +16,13 @@ const inputSchema=z.object({
   sizeBytes:z.number().int().positive()
 });
 
+const allowedExtensions=new Set(["pdf","png","jpg","jpeg","webp","svg","ai","eps","psd","tif","tiff","zip"]);
+
+function extension(name:string){
+  const value=name.split(".").pop()?.toLowerCase()??"";
+  return value;
+}
+
 function safeName(name:string){
   return name
     .normalize("NFKC")
@@ -38,6 +45,10 @@ export async function POST(request:Request){
   }
 
   const data=parsed.data;
+  if(!allowedExtensions.has(extension(data.fileName))){
+    return NextResponse.json({error:"file_type_not_allowed"},{status:415});
+  }
+
   const limit=maxUploadBytes();
   if(data.sizeBytes>limit){
     return NextResponse.json({error:"file_too_large",maxBytes:limit},{status:413});

@@ -4,19 +4,30 @@ export async function createDraftQuoteFromOrder(orderId:string,validDays=7){
   const sql=getSql();
   const rows=await sql`
     with source_order as (
-      select id,customer_id,currency
+      select id,customer_id,currency,status
       from orders
       where id=${orderId}
+        and status not in ('completed','cancelled')
+      limit 1
+    ),
+    existing_draft as (
+      select q.id,q.quote_number
+      from quotes q
+      join source_order so on so.id=q.source_order_id
+      where q.status='draft'
+      order by q.created_at desc
       limit 1
     ),
     totals as (
       select
         coalesce(sum(coalesce(oi.total_price,0)),0)::numeric(14,2) as subtotal
       from order_items oi
-      where oi.order_id=${orderId}
+      join source_order so on so.id=oi.order_id
     ),
     new_quote as (
-      insert into quotes (customer_id,source_order_id,status,currency,subtotal,total,valid_until,notes)
+      insert into quotes (
+        customer_id,source_order_id,status,currency,subtotal,total,valid_until,notes
+      )
       select
         source_order.customer_id,
         source_order.id,
@@ -27,14 +38,22 @@ export async function createDraftQuoteFromOrder(orderId:string,validDays=7){
         current_date+${validDays},
         'Created from ORYX order'
       from source_order cross join totals
+      where not exists(select 1 from existing_draft)
       returning id,quote_number
+    ),
+    chosen_quote as (
+      select id,quote_number,false as created from existing_draft
+      union all
+      select id,quote_number,true as created from new_quote
+      limit 1
     ),
     new_items as (
       insert into quote_items (
-        quote_id,source_order_item_id,service_id,quantity,specifications,unit_price,total_price,cost_estimate,margin_estimate
+        quote_id,source_order_item_id,service_id,quantity,specifications,
+        unit_price,total_price,cost_estimate,margin_estimate
       )
       select
-        new_quote.id,
+        chosen_quote.id,
         oi.id,
         oi.service_id,
         oi.quantity,
@@ -42,26 +61,30 @@ export async function createDraftQuoteFromOrder(orderId:string,validDays=7){
         oi.unit_price,
         oi.total_price,
         null,
-        case
-          when oi.total_price is null then null
-          else oi.total_price
-        end
-      from order_items oi cross join new_quote
+        null
+      from order_items oi
+      cross join chosen_quote
       where oi.order_id=${orderId}
+        and chosen_quote.created=true
       returning id
     ),
     quote_event as (
       insert into quote_events (quote_id,event_type,notes)
       select id,'created_from_order','Draft quote created from order'
-      from new_quote
+      from chosen_quote
+      where created=true
       returning id
     )
-    select id,quote_number from new_quote
+    select id,quote_number,created from chosen_quote
   `;
 
   const quote=rows[0];
-  if(!quote) throw new Error("Order not found or contains no quote source.");
-  return {quoteId:String(quote.id),quoteNumber:Number(quote.quote_number)};
+  if(!quote) throw new Error("Order not found or cannot create a quote.");
+  return {
+    quoteId:String(quote.id),
+    quoteNumber:Number(quote.quote_number),
+    reused:!Boolean(quote.created)
+  };
 }
 
 export async function recalculateQuote(quoteId:string){

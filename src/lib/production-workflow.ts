@@ -305,8 +305,40 @@ export async function reviewQualityInspection(input:{
   const target=targetRows[0];
   if(!target) throw new Error("QC inspection is no longer pending.");
 
-  const accepted=input.acceptedQuantity??(input.decision==="passed"?Number(target.quantity):null);
-  const rejected=input.rejectedQuantity??(input.decision==="failed"?Number(target.quantity):0);
+  const totalQuantity=Number(target.quantity??0);
+  const accepted=input.acceptedQuantity??(input.decision==="passed"?totalQuantity:input.decision==="failed"?0:null);
+  const rejected=input.rejectedQuantity??(input.decision==="failed"?totalQuantity:0);
+
+  if(accepted!==null&&(!Number.isFinite(accepted)||accepted<0)){
+    throw new Error("Accepted QC quantity is invalid.");
+  }
+  if(!Number.isFinite(rejected)||rejected<0){
+    throw new Error("Rejected QC quantity is invalid.");
+  }
+  if((accepted??0)+rejected>totalQuantity){
+    throw new Error("QC quantities cannot exceed the work order quantity.");
+  }
+
+  if(input.decision!=="failed"){
+    const checklist=await sql`
+      select
+        count(*)::integer as total,
+        count(*) filter (where result='pending')::integer as pending,
+        count(*) filter (where result='fail')::integer as failed
+      from qc_check_items
+      where inspection_id=${input.inspectionId}
+    `;
+    const checks=checklist[0];
+    if(Number(checks?.total??0)>0&&Number(checks?.pending??0)>0){
+      throw new Error("Complete every QC checklist item before closing the inspection.");
+    }
+    if(input.decision==="passed"&&Number(checks?.failed??0)>0){
+      throw new Error("A passed inspection cannot contain failed checklist items.");
+    }
+    if(input.decision==="conditional"&&Number(checks?.failed??0)>0&&!input.notes?.trim()){
+      throw new Error("Conditional acceptance with failed checks requires notes.");
+    }
+  }
 
   if(input.decision==="failed"){
     const rows=await sql`

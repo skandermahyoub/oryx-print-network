@@ -50,6 +50,7 @@ export default async function AccountPage(){
           <span className="status-pill">{quote.status}</span>
           <span>{quote.validUntil??"—"}</span>
           <b>{quote.total.toLocaleString("en-US")} {quote.currency}</b>
+          <Link className="document-inline-link" href={`/documents/quotes/${quote.id}`}>عرض / طباعة</Link>
           {quote.status==="sent"?<form action={acceptCustomerQuoteAction}>
             <input type="hidden" name="quoteId" value={quote.id}/>
             <button className="quote-accept-button" type="submit">اعتماد العرض</button>
@@ -116,6 +117,7 @@ export default async function AccountPage(){
           <span className="status-pill">{invoice.status}</span>
           <span>{invoice.dueDate??"—"}</span>
           <b>{invoice.total.toLocaleString("en-US")} {invoice.currency}</b>
+          <Link className="document-inline-link" href={`/documents/invoices/${invoice.id}`}>الفاتورة</Link>
         </article>):<div className="account-empty">لا توجد فواتير بعد.</div>}
       </div>
     </section>

@@ -19,6 +19,19 @@ export type CustomerPortalSnapshot={
     validUntil:string|null;
     orderId:string|null;
   }>;
+  designs:Array<{
+    designJobId:string;
+    designVersionId:string;
+    versionNumber:number;
+    status:string;
+    service:string;
+    orderNumber:number;
+    notes:string|null;
+    fileName:string|null;
+    decision:string|null;
+    decidedAt:string|null;
+    createdAt:string;
+  }>;
   invoices:Array<{
     id:string;
     number:number;
@@ -37,7 +50,7 @@ export type CustomerPortalSnapshot={
 
 export async function getCustomerPortalSnapshot(customerId:string):Promise<CustomerPortalSnapshot>{
   const sql=getSql();
-  const [orders,quotes,invoices,loyalty]=await Promise.all([
+  const [orders,quotes,designs,invoices,loyalty]=await Promise.all([
     sql`
       select
         o.id,o.order_number,o.status,o.total,o.currency,o.created_at,
@@ -55,6 +68,37 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
       where customer_id=${customerId}
         and status in ('sent','accepted','rejected','expired')
       order by created_at desc
+      limit 50
+    `,
+    sql`
+      select
+        dj.id as design_job_id,
+        dv.id as design_version_id,
+        dv.version_number,
+        dj.status,
+        s.name_ar as service_name,
+        o.order_number,
+        dv.notes,
+        d.file_name,
+        da.decision,
+        da.decided_at,
+        dv.created_at
+      from design_jobs dj
+      join order_items oi on oi.id=dj.order_item_id
+      join orders o on o.id=oi.order_id
+      join services s on s.id=oi.service_id
+      join lateral (
+        select dv.*
+        from design_versions dv
+        where dv.design_job_id=dj.id
+        order by dv.version_number desc
+        limit 1
+      ) dv on true
+      left join documents d on d.id=dv.document_id
+      left join design_approvals da on da.design_version_id=dv.id
+      where o.customer_id=${customerId}
+        and dj.status in ('waiting_approval','approved','designing')
+      order by dv.created_at desc
       limit 50
     `,
     sql`
@@ -91,6 +135,19 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
       currency:String(row.currency??"YER"),
       validUntil:row.valid_until?String(row.valid_until):null,
       orderId:row.source_order_id?String(row.source_order_id):null
+    })),
+    designs:designs.map(row=>({
+      designJobId:String(row.design_job_id),
+      designVersionId:String(row.design_version_id),
+      versionNumber:Number(row.version_number),
+      status:String(row.status),
+      service:String(row.service_name),
+      orderNumber:Number(row.order_number),
+      notes:row.notes?String(row.notes):null,
+      fileName:row.file_name?String(row.file_name):null,
+      decision:row.decision?String(row.decision):null,
+      decidedAt:row.decided_at?new Date(String(row.decided_at)).toISOString():null,
+      createdAt:new Date(String(row.created_at)).toISOString()
     })),
     invoices:invoices.map(row=>({
       id:String(row.id),

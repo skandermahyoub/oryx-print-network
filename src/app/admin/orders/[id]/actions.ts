@@ -5,6 +5,7 @@ import { requirePermission } from "@/lib/auth/access";
 import { createDraftQuoteFromOrder } from "@/lib/quote-engine";
 import { issueInvoiceFromOrder, recordInvoicePayment, sendQuote, setOrderItemManualPrice } from "@/lib/commercial-workflow";
 import { createSourcingRequestForOrderItem, assignSourcingCandidate } from "@/lib/sourcing-engine";
+import { ensureDesignJob } from "@/lib/design-workflow";
 import { transitionOrder } from "@/lib/order-workflow";
 import { orderStatuses, type OrderStatus } from "@/lib/order-state-machine";
 
@@ -140,4 +141,20 @@ export async function recordPaymentAction(formData:FormData){
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/finance");
   revalidatePath("/admin");
+}
+
+
+export async function createDesignJobAction(formData:FormData){
+  const access=await requirePermission("design.manage");
+  const orderId=value(formData,"orderId");
+  const orderItemId=value(formData,"orderItemId");
+
+  await ensureDesignJob({
+    orderItemId,
+    actorId:access.preview?null:access.user.id,
+    dueAt:value(formData,"dueAt")||null
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/design");
 }

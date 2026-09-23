@@ -19,7 +19,8 @@ const modules=[
 ["المالية","الفواتير، الدفعات، التكاليف، الهوامش ومستحقات الشركاء","/admin/finance"],
 ["المجلة وSEO","المقالات، الكلمات، الربط بالخدمات والصفحات المقصودة","/admin/content"],
 ["المستخدمون والصلاحيات","RBAC، الأدوار وحالة الحسابات","/admin/users"],
-["سجل التدقيق","تتبع التغييرات والقرارات الحساسة","/admin/audit"]
+["سجل التدقيق","تتبع التغييرات والقرارات الحساسة","/admin/audit"],
+["بوابة الجاهزية","فحص البنية الحرجة قبل Netlify Preview","/admin/readiness"]
 ];
 
 export default async function AdminPage(){
@@ -30,7 +31,7 @@ export default async function AdminPage(){
       <div>
         <span className="eyebrow">ORYX OPERATING SYSTEM</span>
         <h1>مركز القيادة</h1>
-        <p>لوحة تشغيل داخلية. تبقى مغلقة افتراضيًا حتى اكتمال Neon Auth والصلاحيات قبل أي نشر عام.</p>
+        <p>لوحة تشغيل داخلية محمية بـNeon Auth وRBAC. يبقى النشر العام خارج المسار حتى اجتياز بوابة الجاهزية.</p>
       </div>
       <div className="admin-status"><b>PREVIEW</b><span>Neon + GitHub branch</span></div>
     </section>

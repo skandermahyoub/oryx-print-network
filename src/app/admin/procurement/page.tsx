@@ -81,7 +81,7 @@ export default async function ProcurementPage(){
           <thead><tr><th>PR</th><th>الحالة</th><th>العناصر</th><th>التقدير</th><th>الحاجة</th><th>الإجراء</th></tr></thead>
           <tbody>
             {data.requests.length?data.requests.map(request=><tr key={request.id}>
-              <td><strong>PR #{request.number}</strong><small>{request.reason??"—"}</small></td>
+              <td><Link className="table-order-link" href={`/admin/procurement/request/${request.id}`}><strong>PR #{request.number}</strong><small>{request.reason??"—"}</small></Link></td>
               <td><span className="status-pill">{requestLabels[request.status]??request.status}</span></td>
               <td>{request.items}</td>
               <td>{request.estimatedTotal.toLocaleString("en-US")} {request.currency}</td>

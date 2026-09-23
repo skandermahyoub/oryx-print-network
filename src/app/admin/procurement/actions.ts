@@ -63,12 +63,23 @@ export async function createPurchaseRequestAction(formData:FormData){
 
   const sql=getSql();
   const rows=await sql`
-    with created_request as (
+    with valid_input as (
+      select
+        case when ${itemId}='' then null else ii.id end as inventory_item_id,
+        coalesce(nullif(${description},''),ii.name_ar) as description
+      from (select 1) seed
+      left join inventory_items ii
+        on ${itemId}<>'' and ii.id=${itemId}::uuid and ii.is_active=true
+      where ${itemId}='' or ii.id is not null
+    ),
+    created_request as (
       insert into purchase_requests (
         status,requested_by,needed_by,reason
-      ) values (
-        'draft',${access.preview?null:access.user.id},${neededBy||null},${value(formData,"reason")||null}
       )
+      select
+        'draft',${access.preview?null:access.user.id},${neededBy||null},${value(formData,"reason")||null}
+      from valid_input
+      where description is not null
       returning id,request_number
     ),
     created_item as (
@@ -77,15 +88,13 @@ export async function createPurchaseRequestAction(formData:FormData){
       )
       select
         created_request.id,
-        nullif(${itemId},'')::uuid,
-        coalesce(nullif(${description},''),ii.name_ar),
+        valid_input.inventory_item_id,
+        valid_input.description,
         ${quantity},
         ${estimated},
         'YER',
         ${value(formData,"notes")||null}
-      from created_request
-      left join inventory_items ii on ii.id=nullif(${itemId},'')::uuid
-      where ${itemId}='' or ii.id is not null
+      from created_request cross join valid_input
       returning id
     ),
     audit as (
@@ -440,5 +449,97 @@ export async function postGoodsReceiptAction(formData:FormData){
   }
 
   revalidatePath(`/admin/procurement/${orderId}`);
+  refresh();
+}
+
+
+export async function addPurchaseRequestItemAction(formData:FormData){
+  const access=await requirePermission("inventory.manage");
+  const requestId=value(formData,"requestId");
+  const itemId=value(formData,"itemId");
+  const description=value(formData,"description");
+  const quantity=Number(value(formData,"quantity"));
+  const estimatedRaw=value(formData,"estimatedUnitCost");
+  const estimated=estimatedRaw?Number(estimatedRaw):null;
+
+  if(!itemId&&!description) throw new Error("Choose an inventory item or enter a description.");
+  if(!Number.isFinite(quantity)||quantity<=0) throw new Error("Purchase quantity must be greater than zero.");
+  if(estimated!==null&&(!Number.isFinite(estimated)||estimated<0)) throw new Error("Estimated unit cost is invalid.");
+
+  const sql=getSql();
+  const rows=await sql`
+    with request_row as (
+      select id
+      from purchase_requests
+      where id=${requestId} and status='draft'
+      limit 1
+    ),
+    valid_item as (
+      select
+        case when ${itemId}='' then null else ii.id end as inventory_item_id,
+        coalesce(nullif(${description},''),ii.name_ar) as description
+      from (select 1) seed
+      left join inventory_items ii
+        on ${itemId}<>'' and ii.id=${itemId}::uuid and ii.is_active=true
+      where ${itemId}='' or ii.id is not null
+    ),
+    created as (
+      insert into purchase_request_items (
+        purchase_request_id,inventory_item_id,description,quantity,estimated_unit_cost,currency,notes
+      )
+      select
+        request_row.id,valid_item.inventory_item_id,valid_item.description,
+        ${quantity},${estimated},'YER',${value(formData,"notes")||null}
+      from request_row cross join valid_item
+      where valid_item.description is not null
+      returning id
+    ),
+    audit as (
+      insert into audit_events (actor_id,entity_type,entity_id,action,after_data)
+      select
+        ${access.preview?null:access.user.id},
+        'purchase_request',${requestId},'item_added',
+        jsonb_build_object('purchase_request_item_id',created.id,'quantity',${quantity})
+      from created returning id
+    )
+    select id from created
+  `;
+
+  if(!rows[0]) throw new Error("Purchase request is not editable or item is invalid.");
+  revalidatePath(`/admin/procurement/request/${requestId}`);
+  refresh();
+}
+
+export async function removePurchaseRequestItemAction(formData:FormData){
+  const access=await requirePermission("inventory.manage");
+  const requestId=value(formData,"requestId");
+  const itemId=value(formData,"requestItemId");
+  const sql=getSql();
+
+  const rows=await sql`
+    with request_row as (
+      select id from purchase_requests where id=${requestId} and status='draft'
+    ),
+    removed as (
+      delete from purchase_request_items pri
+      using request_row
+      where pri.id=${itemId}
+        and pri.purchase_request_id=request_row.id
+        and (select count(*) from purchase_request_items where purchase_request_id=request_row.id)>1
+      returning pri.id
+    ),
+    audit as (
+      insert into audit_events (actor_id,entity_type,entity_id,action,after_data)
+      select
+        ${access.preview?null:access.user.id},
+        'purchase_request',${requestId},'item_removed',
+        jsonb_build_object('purchase_request_item_id',removed.id)
+      from removed returning id
+    )
+    select id from removed
+  `;
+
+  if(!rows[0]) throw new Error("Keep at least one item or request is not editable.");
+  revalidatePath(`/admin/procurement/request/${requestId}`);
   refresh();
 }

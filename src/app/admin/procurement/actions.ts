@@ -337,7 +337,7 @@ export async function postGoodsReceiptAction(formData:FormData){
              or accepted<0
              or rejected<0
              or accepted+rejected<=0
-             or accepted>quantity-received_quantity
+             or accepted+rejected>quantity-received_quantity
         )::integer as invalid_count,
         count(*)::integer as matched_count
       from locked_items
@@ -392,10 +392,14 @@ export async function postGoodsReceiptAction(formData:FormData){
     po_balance as (
       select
         locked_po.id,
-        bool_and(poi.received_quantity>=poi.quantity) as fully_received
+        not exists(
+          select 1
+          from purchase_order_items poi
+          left join locked_items li on li.id=poi.id
+          where poi.purchase_order_id=locked_po.id
+            and poi.received_quantity+coalesce(li.accepted,0)<poi.quantity
+        ) as fully_received
       from locked_po
-      join purchase_order_items poi on poi.purchase_order_id=locked_po.id
-      group by locked_po.id
     ),
     po_update as (
       update purchase_orders po

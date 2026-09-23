@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { findService, serviceCatalog, type CatalogService, type ServiceField } from "@/lib/service-catalog";
 import { PricingPreview } from "@/components/pricing-preview";
+import { PublicOrderUploader, type PublicOrderAttachment } from "@/components/public-order-uploader";
 
 type Props={initialService?:string};
 type SubmitState="idle"|"sending"|"success"|"error";
@@ -20,6 +21,7 @@ type DraftItem={
   specs:Record<string,string>;
   finishings:string[];
   design:"ready"|"oryx"|"idea";
+  attachments:PublicOrderAttachment[];
 };
 
 const steps=["الخدمة","المواصفات","التصميم","التسليم","بياناتك","الملخص"];
@@ -116,6 +118,7 @@ export function SmartOrderWizard({initialService}:Props){
   const [service,setService]=useState<CatalogService|undefined>(initialFallback);
   const [specs,setSpecs]=useState<Record<string,string>>({});
   const [selectedFinishings,setSelectedFinishings]=useState<string[]>([]);
+  const [attachments,setAttachments]=useState<PublicOrderAttachment[]>([]);
   const [design,setDesign]=useState("ready");
   const [fulfilment,setFulfilment]=useState("pickup");
   const [customer,setCustomer]=useState({displayName:"",companyName:"",phone:"",email:"",city:""});
@@ -202,7 +205,8 @@ export function SmartOrderWizard({initialService}:Props){
       title:service.title,
       specs:{...specs},
       finishings:[...selectedFinishings],
-      design:design as DraftItem["design"]
+      design:design as DraftItem["design"],
+      attachments:[...attachments]
     };
   }
 
@@ -214,6 +218,7 @@ export function SmartOrderWizard({initialService}:Props){
     setService(undefined);
     setSpecs({});
     setSelectedFinishings([]);
+    setAttachments([]);
     setDesign("ready");
     setCatalogSearch("");
     setCategoryFilter("all");
@@ -267,13 +272,15 @@ export function SmartOrderWizard({initialService}:Props){
               serviceSlug:item.serviceSlug,
               specs:item.specs,
               finishings:item.finishings,
-              design:item.design
+              design:item.design,
+              attachments:item.attachments
             })),
             {
               serviceSlug:service.slug,
               specs,
               finishings:selectedFinishings,
-              design
+              design,
+              attachments
             }
           ],
           fulfilment,
@@ -353,6 +360,14 @@ export function SmartOrderWizard({initialService}:Props){
             <button type="button" key={value} className={design===value?"selected":""} onClick={()=>setDesign(value)}><strong>{title}</strong><span>{desc}</span></button>
           )}
         </div>
+        <div className="order-files-panel">
+          <div>
+            <small>FILES & ARTWORK</small>
+            <strong>ملفات هذا العنصر</strong>
+            <span>ترفع مباشرة إلى التخزين ولا تمر عبر خادم الصفحة.</span>
+          </div>
+          <PublicOrderUploader attachments={attachments} onChange={setAttachments}/>
+        </div>
         {service?.preflight?.length?<div className="preflight-panel">
           <div><small>قبل الإنتاج</small><strong>متطلبات تجهيز هذه الخدمة</strong></div>
           <ul>
@@ -395,7 +410,7 @@ export function SmartOrderWizard({initialService}:Props){
           {draftItems.length?<div className="multi-item-cart">
             <div className="multi-item-cart-head"><strong>عناصر إضافية في نفس الطلب</strong><span>{draftItems.length}</span></div>
             {draftItems.map((item,index)=><article key={`${item.serviceSlug}-${index}`}>
-              <div><small>عنصر {index+1}</small><strong>{item.title}</strong></div>
+              <div><small>عنصر {index+1}</small><strong>{item.title}</strong><span>{item.attachments.length?item.attachments.length+" ملفات مرفقة":"بدون ملفات"}</span></div>
               <button type="button" onClick={()=>removeDraftItem(index)}>إزالة</button>
             </article>)}
           </div>:null}

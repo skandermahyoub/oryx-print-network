@@ -381,6 +381,35 @@ export async function reviewQualityInspection(input:{
         and production_assignments.status in ('accepted','in_production')
       returning production_assignments.id
     ),
+    prior_actual_cost as (
+      select coalesce(sum(total_cost),0)::numeric(14,2) as total
+      from job_cost_lines
+      where work_order_id=${target.work_order_id}
+        and is_estimate=false
+    ),
+    partner_actual_cost as (
+      update job_cost_lines jcl
+      set
+        unit_cost=coalesce(pj.quoted_cost,jcl.unit_cost),
+        total_cost=round(coalesce(pj.quoted_cost,jcl.total_cost)::numeric,2),
+        is_estimate=false
+      from updated_assignment ua
+      join partner_jobs pj
+        on pj.work_order_id=${target.work_order_id}
+       and pj.partner_id=${target.partner_id}
+      where jcl.source_type='production_assignment'
+        and jcl.source_id=ua.id
+        and jcl.is_estimate=true
+      returning jcl.total_cost
+    ),
+    work_cost as (
+      update work_orders
+      set cost_actual=
+        (select total from prior_actual_cost)+
+        coalesce((select sum(total_cost) from partner_actual_cost),0)
+      where id=${target.work_order_id}
+      returning id,cost_actual
+    ),
     performance as (
       insert into partner_performance_events (
         partner_id,service_id,work_order_id,event_type,score,on_time,rework,complaint,notes

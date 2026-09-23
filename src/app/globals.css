@@ -526,3 +526,7 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 
 /* Order design control */
 .order-design-control{margin-top:12px;display:flex;gap:8px;align-items:center}.order-design-control a,.order-design-control button{border:1px solid #333;background:#111;color:#fff;border-radius:9px;padding:8px 10px;font-size:9px;font-weight:900;text-decoration:none;cursor:pointer}.order-design-control a:hover,.order-design-control button:hover{border-color:var(--red);color:#ff8b90}
+
+
+/* Direct design proof upload */
+.design-uploader{display:grid;gap:12px}.design-upload-drop{border:1px dashed #45454a;background:#0d0d0e;border-radius:16px;padding:26px;text-align:center;cursor:pointer;display:grid;gap:6px}.design-upload-drop span{font-size:13px;font-weight:900;color:#fff}.design-upload-drop small{font-size:9px;color:#777}.design-upload-drop input{margin:10px auto 0;max-width:100%;color:#999;font-size:9px}.design-upload-success{grid-column:1/-1;border:1px solid #285e3c;background:#102218;border-radius:12px;padding:11px}.design-upload-success small{display:block;color:#6dbb87;font-size:8px}.design-upload-success strong{display:block;color:#fff;font-size:11px;margin-top:4px}.design-version-list a{color:#fff;text-decoration:underline;text-decoration-color:#444;text-underline-offset:3px}.customer-design-meta a{color:var(--red);font-weight:900}

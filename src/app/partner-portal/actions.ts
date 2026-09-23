@@ -161,7 +161,8 @@ export async function completeProductionStepAction(formData:FormData){
     actorId:access.appUserId,
     goodQuantity:goodRaw?Number(goodRaw):null,
     wasteQuantity:wasteRaw?Number(wasteRaw):null,
-    notes:value(formData,"notes")||null
+    notes:value(formData,"notes")||null,
+    proofDocumentId:value(formData,"proofDocumentId")||null
   });
 
   revalidatePath("/partner-portal");

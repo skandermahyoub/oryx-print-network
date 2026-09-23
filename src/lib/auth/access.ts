@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth, authConfigured } from "@/lib/auth/server";
 import { databaseConfigured, getSql } from "@/lib/db";
+import { hasPermission } from "@/lib/auth/rbac";
 
 export type StaffAccess={
   preview:boolean;
@@ -124,7 +125,7 @@ export async function requireStaffAccess():Promise<StaffAccess>{
 
 export async function requirePermission(permission:string){
   const access=await requireStaffAccess();
-  if(access.permissions.includes("*")||access.permissions.includes(permission)){
+  if(hasPermission(access.permissions,permission)){
     return access;
   }
   redirect("/admin");

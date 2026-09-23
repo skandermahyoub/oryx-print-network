@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { queueInAppNotification } from "@/lib/notifications";
 
 export async function ensureDesignJob(input:{
   orderItemId:string;
@@ -178,6 +179,28 @@ export async function createDesignVersion(input:{
     throw new Error("Design document is invalid, belongs to another job, or is not in the design-files bucket.");
   }
 
+  const customerRows=await sql`
+    select o.customer_id,o.order_number,s.name_ar as service_name
+    from design_jobs dj
+    join order_items oi on oi.id=dj.order_item_id
+    join orders o on o.id=oi.order_id
+    join services s on s.id=oi.service_id
+    where dj.id=${row.design_job_id}
+    limit 1
+  `;
+  const customer=customerRows[0];
+  if(customer?.customer_id){
+    await queueInAppNotification({
+      recipientType:"customer",
+      recipientId:String(customer.customer_id),
+      templateKey:"design_ready_for_approval",
+      subject:`تصميم جديد بانتظار اعتمادك — V${Number(row.version_number)}`,
+      body:`تم رفع نسخة جديدة لخدمة ${String(customer.service_name)} في طلب #${Number(customer.order_number)}. راجع الملف واعتمد النسخة أو اطلب التعديل من مكتبك الرقمي.`,
+      relatedType:"design_version",
+      relatedId:String(row.id)
+    });
+  }
+
   return {
     designVersionId:String(row.id),
     designJobId:String(row.design_job_id),
@@ -299,6 +322,18 @@ export async function decideDesignVersion(input:{
   const row=rows[0];
   if(!row){
     throw new Error("This design version is unavailable, not the latest version, or was already decided.");
+  }
+
+  if(input.decision==="approved"){
+    await queueInAppNotification({
+      recipientType:"customer",
+      recipientId:input.customerId,
+      templateKey:"design_approved",
+      subject:"تم اعتماد التصميم للإنتاج",
+      body:"سجل ORYX اعتمادك للنسخة الحالية وسيُستخدم هذا الاعتماد كبوابة للإنتاج.",
+      relatedType:"design_job",
+      relatedId:String(row.design_job_id)
+    });
   }
 
   return {

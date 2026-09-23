@@ -182,7 +182,7 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
               <div><small>QUOTE</small><strong>#{quote.number}</strong></div>
               <span>{quote.status}</span>
               <b>{quote.total.toLocaleString("en-US")} {quote.currency}</b>
-              <small>{quote.validUntil?`صالح حتى ${quote.validUntil}`:"بدون تاريخ انتهاء"}</small>
+              <small>{quote.validUntil?`صالح حتى ${quote.validUntil}`:"بدون تاريخ انتهاء"}</small><Link className="document-inline-link" href={`/documents/quotes/${quote.id}`}>طباعة</Link>
               {quote.status==="draft"?<form action={sendQuoteAction} className="quote-send-form">
                 <input type="hidden" name="orderId" value={detail.order.id}/>
                 <input type="hidden" name="quoteId" value={quote.id}/>
@@ -199,7 +199,7 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
               const outstanding=Math.max(0,invoice.total-invoice.paid);
               return <article key={invoice.id}>
                 <div><small>INVOICE</small><strong>#{invoice.number}</strong></div>
-                <span className="status-pill">{invoice.status}</span>
+                <span className="status-pill">{invoice.status}</span><Link className="document-inline-link" href={`/documents/invoices/${invoice.id}`}>الفاتورة</Link>
                 <div><small>الإجمالي</small><b>{invoice.total.toLocaleString("en-US")} {invoice.currency}</b></div>
                 <div><small>المحصل</small><b>{invoice.paid.toLocaleString("en-US")} {invoice.currency}</b></div>
                 {outstanding>0&&invoice.status!=="cancelled"?<form action={recordPaymentAction} className="invoice-payment-form">

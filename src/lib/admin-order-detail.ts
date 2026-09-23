@@ -31,6 +31,8 @@ export type AdminOrderDetail={
     unitPrice:number|null;
     totalPrice:number|null;
     partner:string|null;
+    requiresDesignApproval:boolean;
+    designJobId:string|null;
     designStatus:string|null;
     designApproved:boolean;
     workOrderNumber:number|null;
@@ -97,7 +99,9 @@ export async function getAdminOrderDetail(orderId:string):Promise<AdminOrderDeta
         oi.total_price,
         s.slug as service_slug,
         s.name_ar as service_name,
+        s.requires_design_approval,
         coalesce(p.trade_name,p.legal_name) as partner_name,
+        dj.id as design_job_id,
         dj.status as design_status,
         exists(
           select 1
@@ -192,6 +196,8 @@ export async function getAdminOrderDetail(orderId:string):Promise<AdminOrderDeta
       unitPrice:row.unit_price===null?null:Number(row.unit_price),
       totalPrice:row.total_price===null?null:Number(row.total_price),
       partner:row.partner_name?String(row.partner_name):null,
+      requiresDesignApproval:Boolean(row.requires_design_approval),
+      designJobId:row.design_job_id?String(row.design_job_id):null,
       designStatus:row.design_status?String(row.design_status):null,
       designApproved:Boolean(row.design_approved),
       workOrderNumber:row.work_order_number===null?null:Number(row.work_order_number),

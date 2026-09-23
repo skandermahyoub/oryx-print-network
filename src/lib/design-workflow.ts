@@ -109,7 +109,7 @@ export async function assignDesignJob(input:{
 
 export async function createDesignVersion(input:{
   designJobId:string;
-  documentId?:string|null;
+  documentId:string;
   notes?:string|null;
   actorId?:string|null;
 }){
@@ -131,8 +131,10 @@ export async function createDesignVersion(input:{
     valid_document as (
       select d.id
       from documents d
-      where d.id=${input.documentId??null}
+      where d.id=${input.documentId}
         and d.bucket_name='design-files'
+        and d.owner_type='design_job'
+        and d.owner_id=${input.designJobId}
       limit 1
     ),
     created as (
@@ -142,12 +144,11 @@ export async function createDesignVersion(input:{
       select
         locked.id,
         next_version.version_number,
-        case when ${input.documentId??null} is null then null else (select id from valid_document) end,
+        (select id from valid_document),
         ${input.notes??null},
         'review'
       from locked cross join next_version
-      where ${input.documentId??null} is null
-         or exists(select 1 from valid_document)
+      where exists(select 1 from valid_document)
       returning id,design_job_id,version_number
     ),
     updated_job as (
@@ -164,7 +165,7 @@ export async function createDesignVersion(input:{
         'design_job',
         created.design_job_id,
         'version_created',
-        jsonb_build_object('design_version_id',created.id,'version_number',created.version_number,'document_id',${input.documentId??null})
+        jsonb_build_object('design_version_id',created.id,'version_number',created.version_number,'document_id',${input.documentId})
       from created
       returning id
     )
@@ -174,7 +175,7 @@ export async function createDesignVersion(input:{
 
   const row=rows[0];
   if(!row){
-    throw new Error(input.documentId?"Design document is invalid or not in the design-files bucket.":"Design job cannot accept a new version.");
+    throw new Error("Design document is invalid, belongs to another job, or is not in the design-files bucket.");
   }
 
   return {

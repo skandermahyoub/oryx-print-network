@@ -17,6 +17,7 @@ export type PartnerPortalSnapshot={
     workOrderStatus:string;
     currentStepKey:string|null;
     currentStepName:string|null;
+    currentStepRequiresPhoto:boolean;
   }>;
   prices:Array<{
     id:string;
@@ -51,7 +52,8 @@ export async function getPartnerPortalSnapshot(partnerId:string):Promise<Partner
         wo.promised_at,
         wo.status as work_order_status,
         wo.current_step_key,
-        ws.name_ar as current_step_name
+        ws.name_ar as current_step_name,
+        coalesce(ws.requires_photo,false) as current_step_requires_photo
       from partner_jobs pj
       join work_orders wo on wo.id=pj.work_order_id
       join order_items oi on oi.id=wo.order_item_id
@@ -107,7 +109,8 @@ export async function getPartnerPortalSnapshot(partnerId:string):Promise<Partner
       promisedAt:row.promised_at?new Date(String(row.promised_at)).toISOString():null,
       workOrderStatus:String(row.work_order_status),
       currentStepKey:row.current_step_key?String(row.current_step_key):null,
-      currentStepName:row.current_step_name?String(row.current_step_name):null
+      currentStepName:row.current_step_name?String(row.current_step_name):null,
+      currentStepRequiresPhoto:Boolean(row.current_step_requires_photo)
     })),
     prices:prices.map(row=>({
       id:String(row.id),

@@ -198,10 +198,10 @@ export async function completeCurrentProductionStep(input:{
   const rows=await sql`
     with event as (
       insert into work_order_events (
-        work_order_id,event_type,step_key,quantity_good,quantity_waste,notes
+        work_order_id,event_type,step_key,quantity_good,quantity_waste,notes,document_id
       ) values (
         ${target.work_order_id},'step_completed',${currentKey},
-        ${good},${waste},${input.notes??null}
+        ${good},${waste},${input.notes??null},${input.proofDocumentId??null}
       )
       returning id
     ),

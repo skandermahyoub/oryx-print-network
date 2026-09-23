@@ -258,6 +258,27 @@ export async function assignSourcingCandidate(input:{
       from new_assignment
       returning id
     ),
+    partner_cost_estimate as (
+      insert into job_cost_lines (
+        order_item_id,work_order_id,cost_type,description,quantity,unit_cost,total_cost,currency,
+        source_type,source_id,is_estimate
+      )
+      select
+        ${source.order_item_id},
+        new_assignment.work_order_id,
+        'partner',
+        'Partner production assignment',
+        1,
+        coalesce(${source.base_cost},0),
+        round(coalesce(${source.base_cost},0)::numeric,2),
+        ${String(source.currency??"YER")},
+        'production_assignment',
+        new_assignment.id,
+        true
+      from new_assignment
+      where ${source.base_cost} is not null
+      returning id
+    ),
     item_update as (
       update order_items
       set assigned_partner_id=${input.partnerId}

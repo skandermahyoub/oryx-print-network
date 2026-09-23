@@ -12,6 +12,9 @@ export type PartnerPortalSnapshot={
     currency:string;
     leadHours:number|null;
     promisedAt:string|null;
+    workOrderStatus:string;
+    currentStepKey:string|null;
+    currentStepName:string|null;
   }>;
   prices:Array<{
     id:string;
@@ -42,12 +45,16 @@ export async function getPartnerPortalSnapshot(partnerId:string):Promise<Partner
         pj.quoted_cost,
         pj.currency,
         pj.lead_hours,
-        wo.promised_at
+        wo.promised_at,
+        wo.status as work_order_status,
+        wo.current_step_key,
+        ws.name_ar as current_step_name
       from partner_jobs pj
       join work_orders wo on wo.id=pj.work_order_id
       join order_items oi on oi.id=wo.order_item_id
       join orders o on o.id=oi.order_id
       join services s on s.id=oi.service_id
+      left join workflow_steps ws on ws.workflow_id=wo.workflow_id and ws.step_key=wo.current_step_key
       where pj.partner_id=${partnerId}
         and pj.status not in ('completed','cancelled','declined')
       order by wo.promised_at nulls last,pj.created_at desc
@@ -93,7 +100,10 @@ export async function getPartnerPortalSnapshot(partnerId:string):Promise<Partner
       quotedCost:row.quoted_cost===null?null:Number(row.quoted_cost),
       currency:String(row.currency??"YER"),
       leadHours:row.lead_hours===null?null:Number(row.lead_hours),
-      promisedAt:row.promised_at?new Date(String(row.promised_at)).toISOString():null
+      promisedAt:row.promised_at?new Date(String(row.promised_at)).toISOString():null,
+      workOrderStatus:String(row.work_order_status),
+      currentStepKey:row.current_step_key?String(row.current_step_key):null,
+      currentStepName:row.current_step_name?String(row.current_step_name):null
     })),
     prices:prices.map(row=>({
       id:String(row.id),

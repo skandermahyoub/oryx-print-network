@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { queueInAppNotification } from "@/lib/notifications";
 
 export async function setOrderItemManualPrice(input:{
   orderItemId:string;
@@ -73,6 +74,27 @@ export async function sendQuote(input:{quoteId:string;actorId?:string|null}){
   `;
   const row=rows[0];
   if(!row) throw new Error("Quote cannot be sent until every item has a valid price and the quote is active.");
+
+  const customerRows=await sql`
+    select q.customer_id,q.quote_number,o.order_number
+    from quotes q
+    left join orders o on o.id=q.source_order_id
+    where q.id=${row.id}
+    limit 1
+  `;
+  const customer=customerRows[0];
+  if(customer?.customer_id){
+    await queueInAppNotification({
+      recipientType:"customer",
+      recipientId:String(customer.customer_id),
+      templateKey:"quote_sent",
+      subject:`عرض السعر #${Number(customer.quote_number)} جاهز`,
+      body:`تم تجهيز عرض السعر لطلب ORYX #${Number(customer.order_number??0)} ويمكنك مراجعته واعتماده من مكتبك الرقمي.`,
+      relatedType:"quote",
+      relatedId:String(row.id)
+    });
+  }
+
   return {quoteId:String(row.id),orderId:row.source_order_id?String(row.source_order_id):null,total:Number(row.total)};
 }
 
@@ -167,5 +189,25 @@ export async function recordInvoicePayment(input:{invoiceId:string;amount:number
   `;
   const row=rows[0];
   if(!row) throw new Error("Payment exceeds the outstanding balance or the invoice is closed.");
+
+  const customerRows=await sql`
+    select customer_id,invoice_number
+    from invoices
+    where id=${row.invoice_id}
+    limit 1
+  `;
+  const customer=customerRows[0];
+  if(customer?.customer_id){
+    await queueInAppNotification({
+      recipientType:"customer",
+      recipientId:String(customer.customer_id),
+      templateKey:"payment_received",
+      subject:`تم استلام دفعتك للفاتورة #${Number(customer.invoice_number)}`,
+      body:`تم تسجيل الدفعة. المحصل الآن ${Number(row.amount_paid).toLocaleString("en-US")} من ${Number(row.total).toLocaleString("en-US")} ${String(row.currency)}.`,
+      relatedType:"invoice",
+      relatedId:String(row.invoice_id)
+    });
+  }
+
   return {paymentId:String(row.payment_id),invoiceId:String(row.invoice_id),amountPaid:Number(row.amount_paid),total:Number(row.total),currency:String(row.currency),status:String(row.status),orderId:row.order_id?String(row.order_id):null};
 }

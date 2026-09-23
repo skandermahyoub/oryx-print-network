@@ -71,13 +71,13 @@ export default async function InventoryPage(){
     <section className="admin-list-shell">
       <div className="admin-table-wrap">
         <table className="admin-table">
-          <thead><tr><th>SKU</th><th>الخامة</th><th>المتوفر</th><th>حد إعادة الطلب</th><th>متوسط التكلفة</th><th>الحالة</th></tr></thead>
+          <thead><tr><th>SKU</th><th>الخامة</th><th>On hand</th><th>محجوز</th><th>متاح</th><th>حد الطلب</th><th>متوسط التكلفة</th><th>الحالة</th></tr></thead>
           <tbody>
             {inventory.items.length?inventory.items.map(item=><tr key={item.id}>
-              <td>{item.sku}</td><td><strong>{item.name}</strong></td><td>{item.stock} {item.unit}</td><td>{item.minStock} {item.unit}</td>
+              <td>{item.sku}</td><td><strong>{item.name}</strong></td><td>{item.stock} {item.unit}</td><td>{item.reserved} {item.unit}</td><td>{item.available} {item.unit}</td><td>{item.minStock} {item.unit}</td>
               <td>{item.averageCost===null?"—":`${item.averageCost.toLocaleString("en-US")} ${item.currency}`}</td>
-              <td><span className={item.stock<=item.minStock?"status-pill warning":"status-pill ready"}>{item.stock<=item.minStock?"منخفض":"جيد"}</span></td>
-            </tr>):<tr><td colSpan={6} className="empty-cell">لم تُدخل مواد مخزون بعد.</td></tr>}
+              <td><span className={item.available<=item.minStock?"status-pill warning":"status-pill ready"}>{item.available<=item.minStock?"منخفض":"جيد"}</span></td>
+            </tr>):<tr><td colSpan={8} className="empty-cell">لم تُدخل مواد مخزون بعد.</td></tr>}
           </tbody>
         </table>
       </div>

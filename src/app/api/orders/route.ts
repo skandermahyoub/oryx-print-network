@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { databaseConfigured, getSql } from "@/lib/db";
+import { findOrCreateCustomer } from "@/lib/customer-identity";
+import { consumePublicRateLimit, publicClientKey } from "@/lib/public-rate-limit";
 
 const customerSchema=z.object({
   displayName:z.string().min(2).max(160),
@@ -24,7 +26,8 @@ const orderSchema=z.object({
   finishings:z.array(z.string().max(160)).max(40).default([]),
   design:z.enum(["ready","oryx","idea"]).default("ready"),
   fulfilment:z.enum(["pickup","delivery"]),
-  customer:customerSchema
+  customer:customerSchema,
+  website:z.string().max(200).optional().default("")
 }).refine(data=>Boolean(data.items?.length||data.serviceSlug),{
   message:"At least one order item is required."
 });
@@ -45,6 +48,23 @@ export async function POST(request:Request){
   }
 
   const data=parsed.data;
+  if(data.website){
+    return NextResponse.json({ok:true},{status:201});
+  }
+
+  const rate=await consumePublicRateLimit({
+    endpoint:"orders:create",
+    keyHash:publicClientKey(request),
+    limit:8,
+    windowSeconds:600
+  });
+  if(!rate.allowed){
+    return NextResponse.json(
+      {error:"Too many order requests. Try again shortly."},
+      {status:429,headers:{"Retry-After":String(rate.retryAfterSeconds)}}
+    );
+  }
+
   const normalizedItems=(data.items?.length?data.items:[{
     serviceSlug:data.serviceSlug as string,
     specs:data.specs,
@@ -64,6 +84,37 @@ export async function POST(request:Request){
 
   const itemsJson=JSON.stringify(normalizedItems);
   const sql=getSql();
+
+  const validity=await sql`
+    with input_items as (
+      select *
+      from jsonb_to_recordset(${itemsJson}::jsonb)
+        as x(service_slug text)
+    )
+    select
+      count(*)::integer as requested_count,
+      count(s.id)::integer as resolved_count
+    from input_items
+    left join services s
+      on s.slug=input_items.service_slug
+     and s.is_active=true
+     and s.is_public=true
+  `;
+
+  if(Number(validity[0]?.requested_count??0)<1||
+     Number(validity[0]?.requested_count)!==Number(validity[0]?.resolved_count)){
+    return NextResponse.json({error:"One or more services are unavailable."},{status:404});
+  }
+
+  const customer=await findOrCreateCustomer({
+    displayName:data.customer.displayName,
+    companyName:data.customer.companyName,
+    phone:data.customer.phone,
+    email:data.customer.email,
+    city:data.customer.city,
+    source:"web-smart-order"
+  });
+
   const rows=await sql`
     with input_items as (
       select *
@@ -76,34 +127,23 @@ export async function POST(request:Request){
       join services s on s.slug=x.service_slug
       where s.is_active=true and s.is_public=true
     ),
-    validity as (
-      select
-        (select count(*) from input_items) as requested_count,
-        (select count(*) from resolved_items) as resolved_count
-    ),
-    new_customer as (
-      insert into customers (customer_type,display_name,company_name,phone,email,city,metadata)
-      select
-        ${data.customer.companyName?"business":"individual"},
-        ${data.customer.displayName},
-        nullif(${data.customer.companyName},''),
-        ${data.customer.phone},
-        nullif(${data.customer.email},''),
-        nullif(${data.customer.city},''),
-        '{"source":"web-smart-order"}'::jsonb
-      from validity
-      where requested_count>0 and requested_count=resolved_count
-      returning id
-    ),
     new_order as (
       insert into orders (customer_id,status,currency,notes)
-      select id,'submitted','YER','Created from ORYX Smart Order' from new_customer
+      values (${customer.customerId},'submitted','YER','Created from ORYX Smart Order')
       returning id,order_number
     ),
     new_items as (
       insert into order_items (order_id,service_id,quantity,specifications)
       select new_order.id,resolved_items.service_id,resolved_items.quantity,resolved_items.specifications
       from new_order cross join resolved_items
+      returning id
+    ),
+    audit as (
+      insert into audit_events (entity_type,entity_id,action,after_data)
+      select
+        'order',new_order.id,'public_order_created',
+        jsonb_build_object('source','web-smart-order','item_count',(select count(*) from new_items),'customer_id',${customer.customerId})
+      from new_order
       returning id
     )
     select

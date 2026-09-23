@@ -3,7 +3,7 @@ import {
   canTransitionOrder,
   nextOrderStatuses,
   requiresDesignApprovalBeforeProduction
-} from "@/lib/order-state-machine";
+} from "./order-state-machine";
 
 describe("order state machine",()=>{
   it("allows the normal commercial path",()=>{

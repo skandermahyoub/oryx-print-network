@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rankProductionPartners } from "@/lib/partner-routing";
+import { rankProductionPartners } from "./partner-routing";
 
 describe("partner routing",()=>{
   it("excludes partners without a usable internal cost",()=>{

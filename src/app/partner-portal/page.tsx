@@ -2,9 +2,9 @@ import Link from "next/link";
 import { requirePartnerAccess } from "@/lib/auth/partner-access";
 import { getPartnerPortalSnapshot } from "@/lib/partner-portal";
 import { getCatalogSummaries } from "@/lib/catalog-repository";
+import { PartnerProductionStepForm } from "@/components/partner-production-step-form";
 import {
   acceptPartnerJobAction,
-  completeProductionStepAction,
   declinePartnerJobAction,
   markPartnerNotificationReadAction,
   startPartnerProductionAction,
@@ -84,12 +84,11 @@ export default async function PartnerPortalPage(){
                 </div>:job.status==="accepted"||job.status==="rework"?<form action={startPartnerProductionAction} className="partner-production-action">
                   <input type="hidden" name="partnerJobId" value={job.id}/>
                   <button type="submit">ابدأ الإنتاج</button>
-                </form>:job.status==="in_progress"?<form action={completeProductionStepAction} className="partner-production-step-form">
-                  <input type="hidden" name="partnerJobId" value={job.id}/>
-                  <input name="goodQuantity" type="number" min="0" step="0.001" placeholder="جيد"/>
-                  <input name="wasteQuantity" type="number" min="0" step="0.001" placeholder="هالك"/>
-                  <button type="submit">{job.currentStepName?"أكمل المرحلة":"إرسال للجودة"}</button>
-                </form>:<span className="partner-job-static">{job.workOrderStatus}</span>}
+                </form>:job.status==="in_progress"?<PartnerProductionStepForm
+                  partnerJobId={job.id}
+                  stepName={job.currentStepName}
+                  requiresPhoto={job.currentStepRequiresPhoto}
+                />:<span className="partner-job-static">{job.workOrderStatus}</span>}
               </td>
             </tr>):<tr><td colSpan={7} className="empty-cell light">لا توجد أعمال مفتوحة حاليًا.</td></tr>}
           </tbody>

@@ -25,5 +25,5 @@ export async function signInWithEmail(
     return {error:error.message||"تعذر تسجيل الدخول."};
   }
 
-  redirect("/admin");
+  redirect("/account");
 }

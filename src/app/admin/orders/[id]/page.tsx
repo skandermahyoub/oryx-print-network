@@ -6,6 +6,10 @@ import {
   assignPartnerAction,
   createQuoteAction,
   createSourcingAction,
+  issueInvoiceAction,
+  recordPaymentAction,
+  sendQuoteAction,
+  setOrderItemPriceAction,
   transitionOrderAction
 } from "./actions";
 
@@ -83,6 +87,11 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
         <input type="hidden" name="orderId" value={detail.order.id}/>
         <button type="submit">إنشاء عرض سعر</button>
       </form>
+      <form action={issueInvoiceAction}>
+        <input type="hidden" name="orderId" value={detail.order.id}/>
+        <input type="hidden" name="dueDays" value="7"/>
+        <button type="submit">إصدار فاتورة</button>
+      </form>
       {detail.nextStatuses.map(status=><form action={transitionOrderAction} key={status.key}>
         <input type="hidden" name="orderId" value={detail.order.id}/>
         <input type="hidden" name="to" value={status.key}/>
@@ -114,6 +123,23 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
                   <summary>المواصفات المسجلة</summary>
                   <pre>{JSON.stringify(item.specifications,null,2)}</pre>
                 </details>
+
+                <form action={setOrderItemPriceAction} className="order-item-price-form">
+                  <input type="hidden" name="orderId" value={detail.order.id}/>
+                  <input type="hidden" name="orderItemId" value={item.id}/>
+                  <label>سعر الوحدة
+                    <input
+                      name="unitPrice"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      defaultValue={item.unitPrice??""}
+                      placeholder="0"
+                    />
+                  </label>
+                  <button type="submit">حفظ السعر</button>
+                </form>
 
                 {!item.sourcingRequestId?<form action={createSourcingAction} className="sourcing-action-form">
                   <input type="hidden" name="orderId" value={detail.order.id}/>
@@ -147,7 +173,41 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
               <span>{quote.status}</span>
               <b>{quote.total.toLocaleString("en-US")} {quote.currency}</b>
               <small>{quote.validUntil?`صالح حتى ${quote.validUntil}`:"بدون تاريخ انتهاء"}</small>
+              {quote.status==="draft"?<form action={sendQuoteAction} className="quote-send-form">
+                <input type="hidden" name="orderId" value={detail.order.id}/>
+                <input type="hidden" name="quoteId" value={quote.id}/>
+                <button type="submit">إرسال للعميل</button>
+              </form>:null}
             </article>):<p className="empty-note">لم ينشأ عرض سعر بعد.</p>}
+          </div>
+        </div>
+
+        <div className="admin-order-section">
+          <div className="admin-order-section-head"><h2>الفواتير والتحصيل</h2><span>{detail.invoices.length}</span></div>
+          <div className="invoice-admin-list">
+            {detail.invoices.length?detail.invoices.map(invoice=>{
+              const outstanding=Math.max(0,invoice.total-invoice.paid);
+              return <article key={invoice.id}>
+                <div><small>INVOICE</small><strong>#{invoice.number}</strong></div>
+                <span className="status-pill">{invoice.status}</span>
+                <div><small>الإجمالي</small><b>{invoice.total.toLocaleString("en-US")} {invoice.currency}</b></div>
+                <div><small>المحصل</small><b>{invoice.paid.toLocaleString("en-US")} {invoice.currency}</b></div>
+                {outstanding>0&&invoice.status!=="cancelled"?<form action={recordPaymentAction} className="invoice-payment-form">
+                  <input type="hidden" name="orderId" value={detail.order.id}/>
+                  <input type="hidden" name="invoiceId" value={invoice.id}/>
+                  <input name="amount" type="number" min="0.01" step="0.01" max={outstanding} required placeholder={String(outstanding)}/>
+                  <select name="method" defaultValue="cash">
+                    <option value="cash">نقدي</option>
+                    <option value="bank_transfer">حوالة/بنك</option>
+                    <option value="wallet">محفظة</option>
+                    <option value="card">بطاقة</option>
+                    <option value="other">أخرى</option>
+                  </select>
+                  <input name="reference" placeholder="مرجع الدفع"/>
+                  <button type="submit">تسجيل دفعة</button>
+                </form>:<strong className="invoice-paid-label">مسدد</strong>}
+              </article>;
+            }):<p className="empty-note">لا توجد فواتير لهذا الطلب.</p>}
           </div>
         </div>
       </div>

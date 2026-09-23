@@ -17,7 +17,7 @@ export default async function ProjectsAdminPage(){
     <section className="admin-project-grid">
       {projects.map(project=><article key={project.id}>
         <div><span className="status-pill">{project.status}</span><small>{project.type}</small></div>
-        <h2>{project.name}</h2>
+        <h2><Link className="table-order-link" href={`/admin/projects/${project.id}`}>{project.name}</Link></h2>
         <div className="project-admin-kpis">
           <span><b>{project.sponsors}</b> رعاة</span>
           <span><b>{project.openTasks}</b> مهام مفتوحة</span>

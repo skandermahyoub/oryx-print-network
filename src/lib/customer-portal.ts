@@ -1,6 +1,8 @@
 import { getSql } from "@/lib/db";
+import { getRecipientNotifications, type PortalNotification } from "@/lib/notifications";
 
 export type CustomerPortalSnapshot={
+  notifications:PortalNotification[];
   orders:Array<{
     id:string;
     number:number;
@@ -68,7 +70,8 @@ export type CustomerPortalSnapshot={
 
 export async function getCustomerPortalSnapshot(customerId:string):Promise<CustomerPortalSnapshot>{
   const sql=getSql();
-  const [orders,quotes,designs,invoices,loyalty,rewards,redemptions,referral]=await Promise.all([
+  const [notifications,orders,quotes,designs,invoices,loyalty,rewards,redemptions,referral]=await Promise.all([
+    getRecipientNotifications({recipientType:"customer",recipientId:customerId,limit:30}),
     sql`
       select
         o.id,o.order_number,o.status,o.total,o.currency,o.created_at,
@@ -171,6 +174,7 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
 
   const points=loyalty[0];
   return {
+    notifications,
     orders:orders.map(row=>({
       id:String(row.id),
       number:Number(row.order_number),

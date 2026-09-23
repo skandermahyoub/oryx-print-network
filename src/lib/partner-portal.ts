@@ -1,6 +1,8 @@
 import { getSql } from "@/lib/db";
+import { getRecipientNotifications, type PortalNotification } from "@/lib/notifications";
 
 export type PartnerPortalSnapshot={
+  notifications:PortalNotification[];
   partner:{name:string;status:string;city:string|null;score:number|null};
   jobs:Array<{
     id:string;
@@ -30,7 +32,8 @@ export type PartnerPortalSnapshot={
 
 export async function getPartnerPortalSnapshot(partnerId:string):Promise<PartnerPortalSnapshot>{
   const sql=getSql();
-  const [partnerRows,jobs,prices,machines,settlements]=await Promise.all([
+  const [notifications,partnerRows,jobs,prices,machines,settlements]=await Promise.all([
+    getRecipientNotifications({recipientType:"partner",recipientId:partnerId,limit:30}),
     sql`
       select coalesce(trade_name,legal_name) as name,status,city,performance_score
       from partners where id=${partnerId} limit 1
@@ -85,6 +88,7 @@ export async function getPartnerPortalSnapshot(partnerId:string):Promise<Partner
 
   const partner=partnerRows[0];
   return {
+    notifications,
     partner:{
       name:String(partner?.name??"شريك ORYX"),
       status:String(partner?.status??"unknown"),

@@ -109,6 +109,20 @@ export async function priceService(serviceSlug:string,specs:Record<string,string
       continue;
     }
 
+    if(row.rule_type==="matrix"){
+      const field=typeof calc.field==="string"?calc.field:"";
+      const prices=configObject(calc.prices);
+      const selected=field?String(specs[field]??""):"";
+      const unitPrice=numberValue(prices[selected]);
+      if(!field||!selected||unitPrice<=0){
+        return {status:"requires_quote",reason:"No matrix price matches the selected specification.",currency};
+      }
+      const amount=unitPrice*(calc.multiply_by_quantity===false?1:quantity);
+      subtotal+=amount;
+      breakdown.push({label:String(row.name),amount});
+      continue;
+    }
+
     if(row.rule_type==="formula"){
       const base=numberValue(calc.base);
       const quantityFactor=numberValue(calc.quantity_factor);

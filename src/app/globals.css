@@ -546,3 +546,21 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 /* Finance operating controls */
 .finance-ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.finance-op-card{background:#18181a;border:1px solid #2a2a2d;border-radius:20px;padding:18px}.finance-op-card h2{font-size:22px;margin:0 0 14px}.finance-op-card form{display:grid;grid-template-columns:1fr 1fr;gap:8px}.finance-op-card input,.finance-op-card select,.finance-op-card textarea{border:1px solid #333;background:#111;color:#fff;border-radius:10px;padding:9px;font-size:9px;min-width:0}.finance-op-card textarea{grid-column:1/-1}.finance-op-card button{grid-column:1/-1;border:0;background:#fff;color:#111;border-radius:10px;padding:9px 12px;font-size:9px;font-weight:900;cursor:pointer}.finance-settlement-shell,.finance-expense-shell{margin-bottom:14px}.settlement-pay-form{display:flex;gap:5px}.settlement-pay-form input{border:1px solid #333;background:#111;color:#fff;border-radius:8px;padding:7px;font-size:8px;max-width:140px}.settlement-pay-form button{border:0;background:#fff;color:#111;border-radius:8px;padding:7px 9px;font-size:8px;font-weight:900;cursor:pointer}
 @media(max-width:850px){.finance-ops-grid{grid-template-columns:1fr}}@media(max-width:560px){.finance-op-card form{grid-template-columns:1fr}.finance-op-card textarea,.finance-op-card button{grid-column:auto}.settlement-pay-form{flex-direction:column}}
+
+
+/* Pricing rule administration */
+.admin-pricing-detail-page{min-height:100vh;background:#111;color:#fff;padding-bottom:90px}
+.pricing-detail-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(360px,.75fr);gap:16px;padding:24px 5vw}
+.pricing-rule-list{display:grid;gap:9px}.pricing-rule-list>article{background:#111;border-radius:14px;padding:13px}
+.pricing-rule-list header{display:flex;justify-content:space-between;gap:12px}.pricing-rule-list strong{display:block;font-size:13px}.pricing-rule-list small{display:block;color:#777;font-size:8px;margin-top:4px}
+.pricing-rule-list pre{background:#0b0b0c;border:1px solid #242427;border-radius:10px;padding:9px;color:#999;font-size:8px;white-space:pre-wrap}
+.price-tier-list{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.price-tier-list>span{border:1px solid #333;border-radius:999px;padding:6px 8px;font-size:8px;color:#bbb}
+.price-tier-list form{display:flex;gap:5px;flex-wrap:wrap}.price-tier-list input{width:100px;border:1px solid #333;background:#0d0d0e;color:#fff;border-radius:8px;padding:7px;font-size:8px}
+.price-tier-list button,.pricing-rule-toggle button{border:1px solid #333;background:#18181a;color:#fff;border-radius:8px;padding:7px 9px;font-size:8px;font-weight:900;cursor:pointer}
+.pricing-rule-toggle{margin-top:10px}
+.pricing-rule-builder{margin:0;height:max-content;position:sticky;top:20px}.pricing-rule-builder h2{font-size:23px;margin:0 0 14px}
+.pricing-rule-builder>form{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pricing-rule-builder label{display:flex;flex-direction:column;gap:6px;color:#777;font-size:8px}
+.pricing-rule-builder input,.pricing-rule-builder select,.pricing-rule-builder textarea{border:1px solid #333;background:#0d0d0e;color:#fff;border-radius:9px;padding:8px;font-size:8px;min-width:0}
+.pricing-calc-grid{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px}.pricing-rule-builder button{grid-column:1/-1;border:0;background:#fff;color:#111;border-radius:9px;padding:10px;font-size:9px;font-weight:900;cursor:pointer}
+@media(max-width:980px){.pricing-detail-grid{grid-template-columns:1fr}.pricing-rule-builder{position:static}}
+@media(max-width:580px){.pricing-rule-builder>form,.pricing-calc-grid{grid-template-columns:1fr}.pricing-calc-grid,.pricing-rule-builder button{grid-column:auto}}

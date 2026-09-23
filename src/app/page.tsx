@@ -65,6 +65,6 @@ export default function Home(){
       </div>
     </section>
 
-    <footer><strong>ORYX PRINT NETWORK</strong><span>نطبع أي شيء على أي شيء.</span><small>Foundation Preview · 2026</small></footer>
+    <footer><strong>ORYX PRINT NETWORK</strong><span>نطبع أي شيء على أي شيء.</span><small>Design · Print · Make · Deliver · 2026</small></footer>
   </div></main>;
 }

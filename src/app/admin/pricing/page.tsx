@@ -36,7 +36,7 @@ export default async function PricingAdminPage(){
           <thead><tr><th>الخدمة</th><th>التصنيف</th><th>طريقة التسعير</th><th>قواعد ORYX</th><th>أسعار شركاء</th><th>الحالة</th></tr></thead>
           <tbody>
             {pricing.services.map(service=><tr key={service.slug}>
-              <td><strong>{service.title}</strong><small>{service.slug}</small></td>
+              <td><Link className="table-order-link" href={`/admin/pricing/${service.slug}`}><strong>{service.title}</strong><small>{service.slug}</small></Link></td>
               <td>{service.category}</td>
               <td>{modeLabels[service.pricingMode]??service.pricingMode}</td>
               <td>{service.activeRules}</td>

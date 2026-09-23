@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { getCustomerPortalSnapshot } from "@/lib/customer-portal";
-import { acceptCustomerQuoteAction, decideCustomerDesignAction, markCustomerNotificationReadAction, requestRewardRedemptionAction } from "./actions";
+import { acceptCustomerQuoteAction, claimExistingOrderAction, decideCustomerDesignAction, markCustomerNotificationReadAction, requestRewardRedemptionAction } from "./actions";
 
 export const dynamic="force-dynamic";
 
@@ -44,6 +44,16 @@ export default async function AccountPage(){
           </form>:<span>مقروء</span>}
         </article>):<div className="account-empty">لا توجد إشعارات بعد.</div>}
       </div>
+    </section>
+
+    <section className="customer-account-section claim-order-section">
+      <div className="account-section-head"><h2>اربط طلبًا سابقًا بحسابك</h2><span>Guest → Account</span></div>
+      <p>إذا أنشأت طلبًا قبل فتح الحساب، أدخل رقم الطلب ورقم الهاتف المسجل فيه. بعد التطابق سيظهر الطلب وعروضه وفواتيره داخل مكتبك الرقمي.</p>
+      <form action={claimExistingOrderAction} className="claim-order-form">
+        <input name="orderNumber" type="number" min="1" required placeholder="رقم الطلب"/>
+        <input name="phone" required placeholder="رقم الهاتف المسجل"/>
+        <button type="submit">ربط الطلب بالحساب</button>
+      </form>
     </section>
 
     <section className="customer-account-section">

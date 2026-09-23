@@ -45,6 +45,8 @@ export async function mapPackageItemServiceAction(formData:FormData){
         target.package_id,${serviceId},target.item_name,1,'core',true,0
       from target
       where target.package_item_id is null
+      on conflict (package_id,item_name,item_role) where item_name is not null
+      do update set service_id=excluded.service_id
       returning id
     ),
     chosen_package_item as (

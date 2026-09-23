@@ -4,7 +4,9 @@ import { getPartnerPortalSnapshot } from "@/lib/partner-portal";
 import { getCatalogSummaries } from "@/lib/catalog-repository";
 import {
   acceptPartnerJobAction,
+  completeProductionStepAction,
   declinePartnerJobAction,
+  startPartnerProductionAction,
   submitPartnerPriceAction
 } from "./actions";
 
@@ -51,20 +53,30 @@ export default async function PartnerPortalPage(){
               <td><strong>#{job.workOrderNumber}</strong></td>
               <td>#{job.orderNumber}</td>
               <td>{job.service}</td>
-              <td><span className="status-pill">{job.status}</span></td>
+              <td><span className="status-pill">{job.status}</span>{job.currentStepName?<small className="partner-current-step">{job.currentStepName}</small>:null}</td>
               <td>{job.quotedCost===null?"—":`${job.quotedCost.toLocaleString("en-US")} ${job.currency}`}</td>
               <td>{job.promisedAt?new Date(job.promisedAt).toLocaleString("ar-YE"):"—"}</td>
-              <td>{job.status==="offered"?<div className="partner-job-actions">
-                <form action={acceptPartnerJobAction}>
+              <td>
+                {job.status==="offered"?<div className="partner-job-actions">
+                  <form action={acceptPartnerJobAction}>
+                    <input type="hidden" name="partnerJobId" value={job.id}/>
+                    <button className="accept" type="submit">قبول</button>
+                  </form>
+                  <form action={declinePartnerJobAction}>
+                    <input type="hidden" name="partnerJobId" value={job.id}/>
+                    <input type="hidden" name="reason" value="Declined from partner portal"/>
+                    <button className="decline" type="submit">رفض</button>
+                  </form>
+                </div>:job.status==="accepted"||job.status==="rework"?<form action={startPartnerProductionAction} className="partner-production-action">
                   <input type="hidden" name="partnerJobId" value={job.id}/>
-                  <button className="accept" type="submit">قبول</button>
-                </form>
-                <form action={declinePartnerJobAction}>
+                  <button type="submit">ابدأ الإنتاج</button>
+                </form>:job.status==="in_progress"?<form action={completeProductionStepAction} className="partner-production-step-form">
                   <input type="hidden" name="partnerJobId" value={job.id}/>
-                  <input type="hidden" name="reason" value="Declined from partner portal"/>
-                  <button className="decline" type="submit">رفض</button>
-                </form>
-              </div>:<span className="partner-job-static">قيد التنفيذ</span>}</td>
+                  <input name="goodQuantity" type="number" min="0" step="0.001" placeholder="جيد"/>
+                  <input name="wasteQuantity" type="number" min="0" step="0.001" placeholder="هالك"/>
+                  <button type="submit">{job.currentStepName?"أكمل المرحلة":"إرسال للجودة"}</button>
+                </form>:<span className="partner-job-static">{job.workOrderStatus}</span>}
+              </td>
             </tr>):<tr><td colSpan={7} className="empty-cell light">لا توجد أعمال مفتوحة حاليًا.</td></tr>}
           </tbody>
         </table>

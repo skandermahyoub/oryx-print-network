@@ -142,9 +142,11 @@ export async function recordInvoicePayment(input:{invoiceId:string;amount:number
   if(!Number.isFinite(input.amount)||input.amount<=0) throw new Error("Payment amount must be greater than zero.");
   const sql=getSql();
   const rows=await sql`
-    with target as (
-      select id,customer_id,total,amount_paid,currency,status from invoices
-      where id=${input.invoiceId} and status not in ('paid','cancelled') limit 1
+    with target as materialized (
+      select id,customer_id,total,amount_paid,currency,status
+      from invoices
+      where id=${input.invoiceId} and status not in ('paid','cancelled')
+      for update
     ), valid as (
       select * from target where ${input.amount}<=greatest(total-amount_paid,0)
     ), payment as (

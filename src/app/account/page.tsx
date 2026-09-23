@@ -60,7 +60,7 @@ export default async function AccountPage(){
       <div className="account-section-head"><h2>الطلبات</h2><Link href="/track">تتبع برقم الطلب ←</Link></div>
       <div className="customer-order-list">
         {snapshot.orders.length?snapshot.orders.map(order=><article key={order.id}>
-          <div><small>طلب ORYX</small><strong>#{order.number}</strong></div>
+          <div><small>طلب ORYX</small><Link href={`/account/orders/${order.id}`}><strong>#{order.number}</strong></Link></div>
           <span>{order.items} عنصر</span>
           <span className="status-pill">{order.status}</span>
           <span>{new Date(order.createdAt).toLocaleDateString("ar-YE")}</span>

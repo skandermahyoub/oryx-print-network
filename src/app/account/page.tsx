@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { getCustomerPortalSnapshot } from "@/lib/customer-portal";
-import { acceptCustomerQuoteAction } from "./actions";
+import { acceptCustomerQuoteAction, decideCustomerDesignAction } from "./actions";
 
 export const dynamic="force-dynamic";
 
@@ -26,7 +26,7 @@ export default async function AccountPage(){
       <article><small>طلباتك</small><strong>{snapshot.orders.length}</strong></article>
       <article><small>النقاط</small><strong>{snapshot.loyalty.points}</strong></article>
       <article><small>المستوى</small><strong>{snapshot.loyalty.tier}</strong></article>
-      <article><small>عروض أسعار</small><strong>{snapshot.quotes.length}</strong></article>
+      <article><small>تصاميم للمراجعة</small><strong>{snapshot.designs.filter(item=>item.status==="waiting_approval").length}</strong></article>
     </section>
 
     <section className="customer-account-section">
@@ -55,6 +55,33 @@ export default async function AccountPage(){
             <button className="quote-accept-button" type="submit">اعتماد العرض</button>
           </form>:<span>{quote.status==="accepted"?"معتمد":"مغلق"}</span>}
         </article>):<div className="account-empty">لا توجد عروض أسعار مرسلة إليك.</div>}
+      </div>
+    </section>
+
+    <section className="customer-account-section">
+      <div className="account-section-head"><h2>اعتماد التصميم</h2></div>
+      <div className="customer-design-list">
+        {snapshot.designs.length?snapshot.designs.map(design=><article key={design.designVersionId}>
+          <header>
+            <div><small>طلب #{design.orderNumber} · V{design.versionNumber}</small><strong>{design.service}</strong></div>
+            <span className="status-pill">{design.decision??design.status}</span>
+          </header>
+          <div className="customer-design-meta">
+            <span><b>النسخة</b>V{design.versionNumber}</span>
+            <span><b>الملف</b>{design.fileName??"سيظهر الملف عند ربط التخزين"}</span>
+            <span><b>التاريخ</b>{new Date(design.createdAt).toLocaleString("ar-YE")}</span>
+          </div>
+          {design.notes?<p>{design.notes}</p>:null}
+          {design.status==="waiting_approval"&&!design.decision?<form action={decideCustomerDesignAction} className="customer-design-decision">
+            <input type="hidden" name="designVersionId" value={design.designVersionId}/>
+            <textarea name="notes" rows={2} placeholder="ملاحظاتك على النسخة — اختياري"/>
+            <div>
+              <button name="decision" value="approved" className="approve" type="submit">APPROVED FOR PRODUCTION</button>
+              <button name="decision" value="revision_requested" className="revision" type="submit">طلب تعديل</button>
+              <button name="decision" value="rejected" className="reject" type="submit">رفض النسخة</button>
+            </div>
+          </form>:null}
+        </article>):<div className="account-empty">لا توجد تصاميم مرتبطة بحسابك بعد.</div>}
       </div>
     </section>
 

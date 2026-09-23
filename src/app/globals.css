@@ -463,3 +463,10 @@ footer{min-height:130px;background:var(--black);color:#fff;padding:36px 5vw;disp
 .service-side-card{margin:0}.service-side-card h2{margin:0 0 14px;font-size:21px}
 @media(max-width:1000px){.service-inline-builder,.workflow-add-form{grid-template-columns:1fr 1fr}.service-inline-builder button{grid-column:1/-1}.service-field-admin-list article{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.service-inline-builder,.workflow-add-form,.service-field-admin-list article{grid-template-columns:1fr}.service-inline-builder button{grid-column:auto}}
+
+
+/* Logistics control */
+.logistics-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:14px}.logistics-kpis article{background:#18181a;border:1px solid #2a2a2d;border-radius:18px;padding:18px}.logistics-kpis small{display:block;color:#777;margin-bottom:12px}.logistics-kpis strong{font-size:30px}
+.logistics-section{margin-top:14px}.logistics-section-head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 20px;border-bottom:1px solid #29292c}.logistics-section-head h2{margin:0;font-size:22px}.logistics-section-head span{color:#777;font-size:10px}
+.logistics-actions{display:flex;gap:5px;flex-wrap:wrap}.logistics-actions form{margin:0}.logistics-actions button{border:1px solid #333;background:#111;color:#fff;border-radius:9px;padding:7px 9px;font-size:8px;font-weight:900;cursor:pointer}.logistics-actions button:hover{border-color:var(--red);color:#ff8b90}
+@media(max-width:1050px){.logistics-kpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:620px){.logistics-kpis{grid-template-columns:1fr 1fr}}

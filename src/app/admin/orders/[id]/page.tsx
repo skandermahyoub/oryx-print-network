@@ -5,6 +5,7 @@ import { getSql } from "@/lib/db";
 import { createDeliveryJobAction, createInstallationJobAction } from "@/app/admin/logistics/actions";
 import {
   assignPartnerAction,
+  createDesignJobAction,
   createQuoteAction,
   createSourcingAction,
   issueInvoiceAction,
@@ -115,7 +116,7 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
 
                 <div className="admin-order-item-meta">
                   <span><b>السعر</b>{item.totalPrice===null?"غير مسعر":`${item.totalPrice.toLocaleString("en-US")} ${detail.order.currency}`}</span>
-                  <span><b>التصميم</b>{item.designApproved?"معتمد":item.designStatus??"لا يوجد Design Job"}</span>
+                  <span><b>التصميم</b>{item.requiresDesignApproval?(item.designApproved?"معتمد":item.designStatus??"يتطلب Design Job"):"غير مطلوب"}</span>
                   <span><b>الإنتاج</b>{item.workOrderNumber?`WO #${item.workOrderNumber} · ${item.workOrderStatus}`:"لم ينشأ أمر عمل"}</span>
                   <span><b>الشريك</b>{item.partner??"غير مسند"}</span>
                 </div>
@@ -124,6 +125,14 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
                   <summary>المواصفات المسجلة</summary>
                   <pre>{JSON.stringify(item.specifications,null,2)}</pre>
                 </details>
+
+                {item.requiresDesignApproval?<div className="order-design-control">
+                  {item.designJobId?<Link href={`/admin/design/${item.designJobId}`}>فتح Design Job ←</Link>:<form action={createDesignJobAction}>
+                    <input type="hidden" name="orderId" value={detail.order.id}/>
+                    <input type="hidden" name="orderItemId" value={item.id}/>
+                    <button type="submit">ابدأ Design Job</button>
+                  </form>}
+                </div>:null}
 
                 <form action={setOrderItemPriceAction} className="order-item-price-form">
                   <input type="hidden" name="orderId" value={detail.order.id}/>

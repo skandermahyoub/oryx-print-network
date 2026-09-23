@@ -29,7 +29,7 @@ export default async function PackageRequestsPage(){
           <thead><tr><th>الطلب</th><th>الباقة</th><th>العميل</th><th>الحالة</th><th>العناصر</th><th>التاريخ</th></tr></thead>
           <tbody>
             {requests.length?requests.map(request=><tr key={request.id}>
-              <td><strong>#{request.requestNumber}</strong></td>
+              <td><Link className="table-order-link" href={`/admin/package-requests/${request.id}`}><strong>#{request.requestNumber}</strong></Link></td>
               <td><strong>{request.packageName}</strong></td>
               <td><strong>{request.customerName}</strong><small>{request.companyName??request.phone??request.city??"—"}</small></td>
               <td><span className="status-pill">{labels[request.status]??request.status}</span></td>

@@ -49,6 +49,16 @@ export type AdminOrderDetail={
     validUntil:string|null;
     createdAt:string;
   }>;
+  invoices:Array<{
+    id:string;
+    number:number;
+    status:string;
+    total:number;
+    paid:number;
+    currency:string;
+    dueDate:string|null;
+    issuedAt:string|null;
+  }>;
   timeline:Array<{
     from:string|null;
     to:string;
@@ -77,7 +87,7 @@ export async function getAdminOrderDetail(orderId:string):Promise<AdminOrderDeta
   const order=rows[0];
   if(!order) return null;
 
-  const [items,quotes,events]=await Promise.all([
+  const [items,quotes,invoices,events]=await Promise.all([
     sql`
       select
         oi.id,
@@ -131,6 +141,12 @@ export async function getAdminOrderDetail(orderId:string):Promise<AdminOrderDeta
       select id,quote_number,status,subtotal,discount,total,currency,valid_until,created_at
       from quotes
       where source_order_id=${orderId}
+      order by created_at desc
+    `,
+    sql`
+      select id,invoice_number,status,total,amount_paid,currency,due_date,issued_at
+      from invoices
+      where order_id=${orderId}
       order by created_at desc
     `,
     sql`
@@ -193,6 +209,16 @@ export async function getAdminOrderDetail(orderId:string):Promise<AdminOrderDeta
       currency:String(row.currency??"YER"),
       validUntil:row.valid_until?String(row.valid_until):null,
       createdAt:new Date(String(row.created_at)).toISOString()
+    })),
+    invoices:invoices.map(row=>({
+      id:String(row.id),
+      number:Number(row.invoice_number),
+      status:String(row.status),
+      total:Number(row.total??0),
+      paid:Number(row.amount_paid??0),
+      currency:String(row.currency??"YER"),
+      dueDate:row.due_date?String(row.due_date):null,
+      issuedAt:row.issued_at?new Date(String(row.issued_at)).toISOString():null
     })),
     timeline:events.map(row=>{
       const to=String(row.to_status);

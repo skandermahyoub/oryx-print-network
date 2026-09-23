@@ -1,6 +1,6 @@
 export type PricingRule={
   name:string;
-  ruleType:"fixed"|"per_unit"|"per_area"|"per_linear"|"formula"|"surcharge"|"discount";
+  ruleType:"fixed"|"per_unit"|"per_area"|"per_linear"|"matrix"|"formula"|"surcharge"|"discount";
   calculation:Record<string,unknown>;
   conditions?:Record<string,unknown>;
 };
@@ -42,6 +42,14 @@ export function calculatePricing(rules:PricingRule[],specs:Record<string,string>
       const length=n(specs.length||specs.height||specs.width);
       if(length<=0) return {status:"requires_quote",reason:"A length value is required for linear pricing.",currency};
       amount=n(calc.price_per_meter)*length*quantity;
+    }
+    if(rule.ruleType==="matrix"){
+      const field=typeof calc.field==="string"?calc.field:"";
+      const prices=calc.prices&&typeof calc.prices==="object"&&!Array.isArray(calc.prices)?calc.prices as Record<string,unknown>:{};
+      const selected=field?String(specs[field]??""):"";
+      const unitPrice=n(prices[selected]);
+      if(!field||!selected||unitPrice<=0) return {status:"requires_quote",reason:"No matrix price matches the selected specification.",currency};
+      amount=unitPrice*(calc.multiply_by_quantity===false?1:quantity);
     }
     if(rule.ruleType==="formula") amount=n(calc.base)+n(calc.quantity_factor)*quantity+n(calc.area_factor)*area*quantity;
     if(rule.ruleType==="surcharge") amount=n(calc.amount)+subtotal*(n(calc.percent)/100);

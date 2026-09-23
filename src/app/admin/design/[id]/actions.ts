@@ -32,10 +32,11 @@ export async function createDesignVersionAction(formData:FormData){
   const designJobId=value(formData,"designJobId");
   const documentId=value(formData,"documentId");
   const notes=value(formData,"notes");
+  if(!documentId) throw new Error("ارفع ملف التصميم أولًا.");
 
   await createDesignVersion({
     designJobId,
-    documentId:documentId||null,
+    documentId,
     notes:notes||null,
     actorId:access.preview?null:access.user.id
   });

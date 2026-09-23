@@ -6,6 +6,7 @@ import {
   acceptPartnerJobAction,
   completeProductionStepAction,
   declinePartnerJobAction,
+  markPartnerNotificationReadAction,
   startPartnerProductionAction,
   submitPartnerPriceAction
 } from "./actions";
@@ -41,6 +42,19 @@ export default async function PartnerPortalPage(){
       <article><small>ماكينات</small><strong>{snapshot.machines.length}</strong></article>
       <article><small>تقييم الأداء</small><strong>{snapshot.partner.score===null?"—":`${snapshot.partner.score}%`}</strong></article>
       <article><small>مستحقات معلقة</small><strong>{pendingSettlements.toLocaleString("en-US")}</strong></article>
+    </section>
+
+    <section className="partner-portal-section">
+      <div className="account-section-head"><h2>الإشعارات</h2><span>{snapshot.notifications.filter(item=>item.status!=="read").length} جديد</span></div>
+      <div className="partner-notification-list">
+        {snapshot.notifications.length?snapshot.notifications.map(item=><article key={item.id} className={item.status==="read"?"read":""}>
+          <div><small>{new Date(item.createdAt).toLocaleString("ar-YE")}</small><strong>{item.subject}</strong><p>{item.body}</p></div>
+          {item.status!=="read"?<form action={markPartnerNotificationReadAction}>
+            <input type="hidden" name="notificationId" value={item.id}/>
+            <button type="submit">تمت القراءة</button>
+          </form>:<span>مقروء</span>}
+        </article>):<p className="account-empty">لا توجد إشعارات جديدة.</p>}
+      </div>
     </section>
 
     <section className="partner-portal-section">

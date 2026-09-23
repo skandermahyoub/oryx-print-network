@@ -48,6 +48,10 @@ export async function getReleaseReadiness():Promise<ReleaseReadiness>{
           to_regclass('public.production_assignments') is not null as production_assignments,
           to_regclass('public.delivery_events') is not null as delivery_events,
           to_regclass('public.loyalty_accounts') is not null as loyalty_accounts,
+          to_regclass('public.goods_receipts') is not null as goods_receipts,
+          to_regclass('public.qc_check_items') is not null as qc_check_items,
+          to_regclass('public.invoices') is not null as invoices,
+          to_regclass('public.payments') is not null as payments,
           (select count(*)::integer from services where is_active=true and is_public=true) as public_services,
           (select count(*)::integer from pricing_rules where is_active=true) as pricing_rules,
           (select count(*)::integer from production_workflows where is_active=true and is_default=true) as workflows,
@@ -81,6 +85,24 @@ export async function getReleaseReadiness():Promise<ReleaseReadiness>{
         label:"Delivery audit trail",
         status:Boolean(r?.delivery_events)?"pass":"block",
         detail:Boolean(r?.delivery_events)?"Delivery events available":"Delivery migration missing"
+      });
+      checks.push({
+        key:"procurement",
+        label:"Procurement lifecycle",
+        status:Boolean(r?.goods_receipts)?"pass":"block",
+        detail:Boolean(r?.goods_receipts)?"Purchase requests, POs and goods receipts available":"Procurement schema missing"
+      });
+      checks.push({
+        key:"qc-checklists",
+        label:"QC checklist enforcement",
+        status:Boolean(r?.qc_check_items)?"pass":"block",
+        detail:Boolean(r?.qc_check_items)?"QC checklist records available":"QC checklist schema missing"
+      });
+      checks.push({
+        key:"finance-core",
+        label:"Finance integrity",
+        status:Boolean(r?.invoices)&&Boolean(r?.payments)?"pass":"block",
+        detail:Boolean(r?.invoices)&&Boolean(r?.payments)?"Invoices and payments available":"Finance tables missing"
       });
       checks.push({
         key:"catalog",

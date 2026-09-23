@@ -12,6 +12,16 @@ export type ProductionSnapshot={
     currentStep:string|null;
     orderNumber:number;
   }>;
+  inspections:Array<{
+    id:string;
+    workOrderNumber:number;
+    orderNumber:number;
+    service:string;
+    partner:string|null;
+    quantity:number;
+    promisedAt:string|null;
+    status:string;
+  }>;
   totals:{
     queued:number;
     inProgress:number;
@@ -21,13 +31,13 @@ export type ProductionSnapshot={
   };
 };
 
-const empty:ProductionSnapshot={workOrders:[],totals:{queued:0,inProgress:0,qc:0,rework:0,overdue:0}};
+const empty:ProductionSnapshot={workOrders:[],inspections:[],totals:{queued:0,inProgress:0,qc:0,rework:0,overdue:0}};
 
 export async function getProductionSnapshot():Promise<ProductionSnapshot>{
   if(!databaseConfigured()) return empty;
   try{
     const sql=getSql();
-    const [orders,totals]=await Promise.all([
+    const [orders,inspections,totals]=await Promise.all([
       sql`
         select
           wo.id,
@@ -49,6 +59,26 @@ export async function getProductionSnapshot():Promise<ProductionSnapshot>{
           case wo.priority when 'urgent' then 0 when 'high' then 1 else 2 end,
           wo.promised_at nulls last,
           wo.created_at asc
+        limit 100
+      `,
+      sql`
+        select
+          qi.id,
+          qi.status,
+          wo.work_order_number,
+          wo.promised_at,
+          o.order_number,
+          oi.quantity,
+          s.name_ar as service_name,
+          coalesce(p.trade_name,p.legal_name) as partner_name
+        from qc_inspections qi
+        join work_orders wo on wo.id=qi.work_order_id
+        join order_items oi on oi.id=wo.order_item_id
+        join orders o on o.id=oi.order_id
+        join services s on s.id=oi.service_id
+        left join partners p on p.id=wo.partner_id
+        where qi.status='pending'
+        order by qi.created_at asc
         limit 100
       `,
       sql`
@@ -77,6 +107,16 @@ export async function getProductionSnapshot():Promise<ProductionSnapshot>{
         promisedAt:row.promised_at?new Date(String(row.promised_at)).toISOString():null,
         currentStep:row.current_step_key?String(row.current_step_key):null,
         orderNumber:Number(row.order_number)
+      })),
+      inspections:inspections.map(row=>({
+        id:String(row.id),
+        workOrderNumber:Number(row.work_order_number),
+        orderNumber:Number(row.order_number),
+        service:String(row.service_name),
+        partner:row.partner_name?String(row.partner_name):null,
+        quantity:Number(row.quantity??0),
+        promisedAt:row.promised_at?new Date(String(row.promised_at)).toISOString():null,
+        status:String(row.status)
       })),
       totals:{
         queued:Number(t?.queued??0),

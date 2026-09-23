@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/access";
 import { createDraftQuoteFromOrder } from "@/lib/quote-engine";
+import { issueInvoiceFromOrder, recordInvoicePayment, sendQuote, setOrderItemManualPrice } from "@/lib/commercial-workflow";
 import { createSourcingRequestForOrderItem, assignSourcingCandidate } from "@/lib/sourcing-engine";
 import { transitionOrder } from "@/lib/order-workflow";
 import { orderStatuses, type OrderStatus } from "@/lib/order-state-machine";
@@ -71,4 +72,72 @@ export async function assignPartnerAction(formData:FormData){
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/sourcing");
   revalidatePath("/admin/production");
+}
+
+
+export async function setOrderItemPriceAction(formData:FormData){
+  const access=await requirePermission("quotes.manage");
+  const orderId=value(formData,"orderId");
+  const orderItemId=value(formData,"orderItemId");
+  const unitPrice=Number(value(formData,"unitPrice"));
+
+  await setOrderItemManualPrice({
+    orderItemId,
+    unitPrice,
+    actorId:access.preview?null:access.user.id
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/orders");
+}
+
+export async function sendQuoteAction(formData:FormData){
+  const access=await requirePermission("quotes.manage");
+  const orderId=value(formData,"orderId");
+  const quoteId=value(formData,"quoteId");
+
+  await sendQuote({
+    quoteId,
+    actorId:access.preview?null:access.user.id
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+}
+
+export async function issueInvoiceAction(formData:FormData){
+  const access=await requirePermission("finance.manage");
+  const orderId=value(formData,"orderId");
+  const dueDaysRaw=Number(value(formData,"dueDays")||"7");
+  const dueDays=Number.isFinite(dueDaysRaw)?dueDaysRaw:7;
+
+  await issueInvoiceFromOrder({
+    orderId,
+    dueDays,
+    actorId:access.preview?null:access.user.id
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/finance");
+  revalidatePath("/admin");
+}
+
+export async function recordPaymentAction(formData:FormData){
+  const access=await requirePermission("finance.manage");
+  const orderId=value(formData,"orderId");
+  const invoiceId=value(formData,"invoiceId");
+  const amount=Number(value(formData,"amount"));
+
+  await recordInvoicePayment({
+    invoiceId,
+    amount,
+    method:value(formData,"method")||null,
+    reference:value(formData,"reference")||null,
+    actorId:access.preview?null:access.user.id
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/finance");
+  revalidatePath("/admin");
 }

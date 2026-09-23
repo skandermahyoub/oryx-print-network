@@ -228,6 +228,20 @@ export async function completeCurrentProductionStep(input:{
       )
       returning id
     ),
+    qc_defaults as (
+      insert into qc_check_items (inspection_id,check_key,label_ar,result)
+      select inspection.id,checks.check_key,checks.label_ar,'pending'
+      from inspection
+      cross join (values
+        ('final_visual','سلامة المظهر والطباعة'),
+        ('dimensions','المقاس والقص'),
+        ('finishing','التشطيبات المطلوبة'),
+        ('quantity','الكمية المقبولة'),
+        ('packaging','التغليف والحماية')
+      ) as checks(check_key,label_ar)
+      on conflict (inspection_id,check_key) do nothing
+      returning id
+    ),
     old_order as (
       select id,status
       from orders

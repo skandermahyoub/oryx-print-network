@@ -10,6 +10,15 @@ export type CustomerPortalSnapshot={
     items:number;
     createdAt:string;
   }>;
+  quotes:Array<{
+    id:string;
+    number:number;
+    status:string;
+    total:number;
+    currency:string;
+    validUntil:string|null;
+    orderId:string|null;
+  }>;
   invoices:Array<{
     id:string;
     number:number;
@@ -28,7 +37,7 @@ export type CustomerPortalSnapshot={
 
 export async function getCustomerPortalSnapshot(customerId:string):Promise<CustomerPortalSnapshot>{
   const sql=getSql();
-  const [orders,invoices,loyalty]=await Promise.all([
+  const [orders,quotes,invoices,loyalty]=await Promise.all([
     sql`
       select
         o.id,o.order_number,o.status,o.total,o.currency,o.created_at,
@@ -38,6 +47,14 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
       where o.customer_id=${customerId}
       group by o.id
       order by o.created_at desc
+      limit 50
+    `,
+    sql`
+      select id,quote_number,status,total,currency,valid_until,source_order_id
+      from quotes
+      where customer_id=${customerId}
+        and status in ('sent','accepted','rejected','expired')
+      order by created_at desc
       limit 50
     `,
     sql`
@@ -65,6 +82,15 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
       currency:String(row.currency??"YER"),
       items:Number(row.item_count??0),
       createdAt:new Date(String(row.created_at)).toISOString()
+    })),
+    quotes:quotes.map(row=>({
+      id:String(row.id),
+      number:Number(row.quote_number),
+      status:String(row.status),
+      total:Number(row.total??0),
+      currency:String(row.currency??"YER"),
+      validUntil:row.valid_until?String(row.valid_until):null,
+      orderId:row.source_order_id?String(row.source_order_id):null
     })),
     invoices:invoices.map(row=>({
       id:String(row.id),

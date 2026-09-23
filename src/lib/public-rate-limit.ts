@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { getSql } from "@/lib/db";
+import { getSql } from "./db";
 
 function floorWindow(date:Date,windowSeconds:number){
   const milliseconds=windowSeconds*1000;

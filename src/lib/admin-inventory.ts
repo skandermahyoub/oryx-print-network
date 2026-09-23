@@ -7,6 +7,8 @@ export type InventorySnapshot={
     name:string;
     unit:string;
     stock:number;
+    reserved:number;
+    available:number;
     minStock:number;
     averageCost:number|null;
     currency:string;
@@ -32,16 +34,35 @@ export async function getInventorySnapshot():Promise<InventorySnapshot>{
     const sql=getSql();
     const [items,warehouses,purchases,totals]=await Promise.all([
       sql`
+        with on_hand as (
+          select
+            ii.id,
+            coalesce(sum(case
+              when sm.movement_type in ('opening','receipt','adjust_in','transfer_in','return') then sm.quantity
+              when sm.movement_type in ('consume','waste','adjust_out','transfer_out') then -sm.quantity
+              else 0 end),0)::numeric(14,3) as stock
+          from inventory_items ii
+          left join stock_movements sm on sm.inventory_item_id=ii.id
+          where ii.is_active=true
+          group by ii.id
+        ),
+        reservations as (
+          select
+            inventory_item_id,
+            coalesce(sum(quantity-consumed_quantity),0)::numeric(14,3) as reserved
+          from material_reservations
+          where status in ('reserved','partially_consumed')
+          group by inventory_item_id
+        )
         select
           ii.id,ii.sku,ii.name_ar,ii.unit,ii.min_stock,ii.average_cost,ii.currency,
-          coalesce(sum(case
-            when sm.movement_type in ('opening','receipt','release','adjust_in','transfer_in','return') then sm.quantity
-            when sm.movement_type in ('reserve','consume','waste','adjust_out','transfer_out') then -sm.quantity
-            else 0 end),0)::numeric(14,3) as stock
+          on_hand.stock,
+          coalesce(reservations.reserved,0)::numeric(14,3) as reserved,
+          greatest(0,on_hand.stock-coalesce(reservations.reserved,0))::numeric(14,3) as available
         from inventory_items ii
-        left join stock_movements sm on sm.inventory_item_id=ii.id
+        join on_hand on on_hand.id=ii.id
+        left join reservations on reservations.inventory_item_id=ii.id
         where ii.is_active=true
-        group by ii.id
         order by ii.name_ar
         limit 200
       `,
@@ -64,8 +85,8 @@ export async function getInventorySnapshot():Promise<InventorySnapshot>{
           select
             ii.id,ii.min_stock,
             coalesce(sum(case
-              when sm.movement_type in ('opening','receipt','release','adjust_in','transfer_in','return') then sm.quantity
-              when sm.movement_type in ('reserve','consume','waste','adjust_out','transfer_out') then -sm.quantity
+              when sm.movement_type in ('opening','receipt','adjust_in','transfer_in','return') then sm.quantity
+              when sm.movement_type in ('consume','waste','adjust_out','transfer_out') then -sm.quantity
               else 0 end),0) as stock
           from inventory_items ii
           left join stock_movements sm on sm.inventory_item_id=ii.id
@@ -87,6 +108,8 @@ export async function getInventorySnapshot():Promise<InventorySnapshot>{
         name:String(row.name_ar),
         unit:String(row.unit),
         stock:Number(row.stock??0),
+        reserved:Number(row.reserved??0),
+        available:Number(row.available??0),
         minStock:Number(row.min_stock??0),
         averageCost:row.average_cost===null?null:Number(row.average_cost),
         currency:String(row.currency??"YER")

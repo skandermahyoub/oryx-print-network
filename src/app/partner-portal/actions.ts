@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePartnerAccess } from "@/lib/auth/partner-access";
 import { getSql } from "@/lib/db";
+import { completeCurrentProductionStep, startPartnerProduction } from "@/lib/production-workflow";
 
 function value(formData:FormData,key:string){
   return String(formData.get(key)??"").trim();
@@ -130,5 +131,37 @@ export async function submitPartnerPriceAction(formData:FormData){
   `;
 
   if(!rows[0]) throw new Error("Service not found.");
+  revalidatePath("/partner-portal");
+}
+
+
+export async function startPartnerProductionAction(formData:FormData){
+  const access=await requirePartnerAccess();
+  const partnerJobId=value(formData,"partnerJobId");
+
+  await startPartnerProduction({
+    partnerJobId,
+    partnerId:access.partnerId,
+    actorId:access.appUserId
+  });
+
+  revalidatePath("/partner-portal");
+}
+
+export async function completeProductionStepAction(formData:FormData){
+  const access=await requirePartnerAccess();
+  const partnerJobId=value(formData,"partnerJobId");
+  const goodRaw=value(formData,"goodQuantity");
+  const wasteRaw=value(formData,"wasteQuantity");
+
+  await completeCurrentProductionStep({
+    partnerJobId,
+    partnerId:access.partnerId,
+    actorId:access.appUserId,
+    goodQuantity:goodRaw?Number(goodRaw):null,
+    wasteQuantity:wasteRaw?Number(wasteRaw):null,
+    notes:value(formData,"notes")||null
+  });
+
   revalidatePath("/partner-portal");
 }

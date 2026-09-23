@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requirePartnerAccess } from "@/lib/auth/partner-access";
 import { getSql } from "@/lib/db";
 import { completeCurrentProductionStep, startPartnerProduction } from "@/lib/production-workflow";
+import { markRecipientNotificationRead } from "@/lib/notifications";
 
 function value(formData:FormData,key:string){
   return String(formData.get(key)??"").trim();
@@ -161,6 +162,21 @@ export async function completeProductionStepAction(formData:FormData){
     goodQuantity:goodRaw?Number(goodRaw):null,
     wasteQuantity:wasteRaw?Number(wasteRaw):null,
     notes:value(formData,"notes")||null
+  });
+
+  revalidatePath("/partner-portal");
+}
+
+
+export async function markPartnerNotificationReadAction(formData:FormData){
+  const access=await requirePartnerAccess();
+  const notificationId=value(formData,"notificationId");
+  if(!notificationId) throw new Error("Notification id is required.");
+
+  await markRecipientNotificationRead({
+    notificationId,
+    recipientType:"partner",
+    recipientId:access.partnerId
   });
 
   revalidatePath("/partner-portal");

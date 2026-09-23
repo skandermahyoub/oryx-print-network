@@ -101,6 +101,7 @@ export async function completeCurrentProductionStep(input:{
   goodQuantity?:number|null;
   wasteQuantity?:number|null;
   notes?:string|null;
+  proofDocumentId?:string|null;
 }){
   const sql=getSql();
 
@@ -112,10 +113,12 @@ export async function completeCurrentProductionStep(input:{
       wo.workflow_id,
       wo.current_step_key,
       wo.order_item_id,
-      oi.order_id
+      oi.order_id,
+      coalesce(ws.requires_photo,false) as requires_photo
     from partner_jobs pj
     join work_orders wo on wo.id=pj.work_order_id
     join order_items oi on oi.id=wo.order_item_id
+    left join workflow_steps ws on ws.workflow_id=wo.workflow_id and ws.step_key=wo.current_step_key
     where pj.id=${input.partnerJobId}
       and pj.partner_id=${input.partnerId}
       and pj.status='in_progress'
@@ -128,6 +131,24 @@ export async function completeCurrentProductionStep(input:{
 
   const currentKey=target.current_step_key?String(target.current_step_key):null;
   if(!currentKey) throw new Error("The work order has no active workflow step.");
+
+  if(Boolean(target.requires_photo)&&!input.proofDocumentId){
+    throw new Error("This production step requires a proof document.");
+  }
+
+  if(input.proofDocumentId){
+    const proof=await sql`
+      select id
+      from documents
+      where id=${input.proofDocumentId}
+        and owner_type='work_order'
+        and owner_id=${target.work_order_id}
+        and purpose='production_proof'
+        and bucket_name='customer-documents'
+      limit 1
+    `;
+    if(!proof[0]) throw new Error("Production proof is invalid for this work order.");
+  }
 
   const nextRows=await sql`
     with current_step as (
@@ -153,10 +174,10 @@ export async function completeCurrentProductionStep(input:{
     const rows=await sql`
       with event as (
         insert into work_order_events (
-          work_order_id,event_type,step_key,quantity_good,quantity_waste,notes
+          work_order_id,event_type,step_key,quantity_good,quantity_waste,notes,document_id
         ) values (
           ${target.work_order_id},'step_completed',${currentKey},
-          ${good},${waste},${input.notes??null}
+          ${good},${waste},${input.notes??null},${input.proofDocumentId??null}
         )
         returning id
       ),

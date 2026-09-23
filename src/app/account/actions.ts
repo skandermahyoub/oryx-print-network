@@ -5,6 +5,7 @@ import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { acceptQuoteForCustomer } from "@/lib/commercial-workflow";
 import { decideDesignVersion } from "@/lib/design-workflow";
 import { requestRewardRedemption } from "@/lib/loyalty-workflow";
+import { markRecipientNotificationRead } from "@/lib/notifications";
 
 export async function acceptCustomerQuoteAction(formData:FormData){
   const access=await requireCustomerAccess();
@@ -55,4 +56,19 @@ export async function requestRewardRedemptionAction(formData:FormData){
 
   revalidatePath("/account");
   revalidatePath("/admin/loyalty");
+}
+
+
+export async function markCustomerNotificationReadAction(formData:FormData){
+  const access=await requireCustomerAccess();
+  const notificationId=String(formData.get("notificationId")??"").trim();
+  if(!notificationId) throw new Error("Notification id is required.");
+
+  await markRecipientNotificationRead({
+    notificationId,
+    recipientType:"customer",
+    recipientId:access.customerId
+  });
+
+  revalidatePath("/account");
 }

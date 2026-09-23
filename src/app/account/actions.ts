@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { acceptQuoteForCustomer } from "@/lib/commercial-workflow";
 import { decideDesignVersion } from "@/lib/design-workflow";
+import { requestRewardRedemption } from "@/lib/loyalty-workflow";
 
 export async function acceptCustomerQuoteAction(formData:FormData){
   const access=await requireCustomerAccess();
@@ -39,4 +40,19 @@ export async function decideCustomerDesignAction(formData:FormData){
   revalidatePath("/account");
   revalidatePath("/admin/design");
   revalidatePath("/admin/orders");
+}
+
+
+export async function requestRewardRedemptionAction(formData:FormData){
+  const access=await requireCustomerAccess();
+  const rewardId=String(formData.get("rewardId")??"").trim();
+  if(!rewardId) throw new Error("Reward id is required.");
+
+  await requestRewardRedemption({
+    customerId:access.customerId,
+    rewardId
+  });
+
+  revalidatePath("/account");
+  revalidatePath("/admin/loyalty");
 }

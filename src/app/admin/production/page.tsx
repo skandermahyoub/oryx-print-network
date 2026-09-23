@@ -51,7 +51,7 @@ export default async function ProductionPage(){
           <thead><tr><th>WO</th><th>الطلب</th><th>الخدمة</th><th>الشريك</th><th>المرحلة</th><th>الأولوية</th><th>الموعد</th></tr></thead>
           <tbody>
             {production.workOrders.length?production.workOrders.map(work=><tr key={work.id}>
-              <td><strong>#{work.number}</strong></td>
+              <td><Link className="table-order-link" href={`/admin/production/${work.id}`}><strong>#{work.number}</strong></Link></td>
               <td>#{work.orderNumber}</td>
               <td>{work.service}</td>
               <td>{work.partner??"لم يسند"}</td>

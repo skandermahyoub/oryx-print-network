@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { getCustomerPortalSnapshot } from "@/lib/customer-portal";
-import { acceptCustomerQuoteAction, decideCustomerDesignAction } from "./actions";
+import { acceptCustomerQuoteAction, decideCustomerDesignAction, requestRewardRedemptionAction } from "./actions";
 
 export const dynamic="force-dynamic";
 
@@ -83,6 +83,29 @@ export default async function AccountPage(){
           </form>:null}
         </article>):<div className="account-empty">لا توجد تصاميم مرتبطة بحسابك بعد.</div>}
       </div>
+    </section>
+
+    <section className="customer-account-section">
+      <div className="account-section-head"><h2>المكافآت</h2><span>{snapshot.loyalty.points} نقطة</span></div>
+      {snapshot.loyalty.referralCode?<div className="referral-code-card">
+        <small>كود الإحالة</small><strong>{snapshot.loyalty.referralCode}</strong><span>استخدمه في برامج الإحالة عندما تُفعّل حملتها.</span>
+      </div>:null}
+      <div className="customer-reward-grid">
+        {snapshot.rewards.length?snapshot.rewards.map(reward=><article key={reward.id}>
+          <span>{reward.type}</span>
+          <h3>{reward.name}</h3>
+          {reward.description?<p>{reward.description}</p>:null}
+          <strong>{reward.pointsCost} نقطة</strong>
+          <form action={requestRewardRedemptionAction}>
+            <input type="hidden" name="rewardId" value={reward.id}/>
+            <button type="submit" disabled={snapshot.loyalty.points<reward.pointsCost}>طلب الاستبدال</button>
+          </form>
+        </article>):<div className="account-empty">لا توجد مكافآت نشطة حاليًا.</div>}
+      </div>
+      {snapshot.redemptions.length?<div className="customer-redemption-list">
+        <h3>طلبات الاستبدال</h3>
+        {snapshot.redemptions.map(item=><div key={item.id}><strong>{item.reward}</strong><span>{item.points} نقطة</span><span className="status-pill">{item.status}</span></div>)}
+      </div>:null}
     </section>
 
     <section className="customer-account-section">

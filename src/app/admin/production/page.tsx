@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getProductionSnapshot } from "@/lib/admin-production";
+import { reviewQcAction } from "./actions";
 
 export default async function ProductionPage(){
   const production=await getProductionSnapshot();
@@ -20,6 +21,28 @@ export default async function ProductionPage(){
       <article><small>فحص جودة معلق</small><strong>{production.totals.qc}</strong></article>
       <article><small>إعادة عمل</small><strong>{production.totals.rework}</strong></article>
       <article><small>متأخر</small><strong>{production.totals.overdue}</strong></article>
+    </section>
+
+    <section className="admin-list-shell production-qc-shell">
+      <div className="logistics-section-head"><h2>فحوصات الجودة المعلقة</h2><span>{production.inspections.length}</span></div>
+      <div className="qc-review-grid">
+        {production.inspections.length?production.inspections.map(inspection=><article key={inspection.id}>
+          <div className="qc-review-head">
+            <div><small>WO #{inspection.workOrderNumber} · ORDER #{inspection.orderNumber}</small><h3>{inspection.service}</h3></div>
+            <span className="status-pill">{inspection.status}</span>
+          </div>
+          <p>{inspection.partner??"تنفيذ داخلي"} · كمية {inspection.quantity}</p>
+          <form action={reviewQcAction} className="qc-review-form">
+            <input type="hidden" name="inspectionId" value={inspection.id}/>
+            <input name="acceptedQuantity" type="number" min="0" step="0.001" placeholder="الكمية المقبولة"/>
+            <input name="rejectedQuantity" type="number" min="0" step="0.001" placeholder="الكمية المرفوضة"/>
+            <input name="notes" placeholder="ملاحظات الفحص"/>
+            <button name="decision" value="passed" className="qc-pass" type="submit">اجتاز</button>
+            <button name="decision" value="conditional" className="qc-conditional" type="submit">قبول مشروط</button>
+            <button name="decision" value="failed" className="qc-fail" type="submit">فشل وإعادة عمل</button>
+          </form>
+        </article>):<div className="empty-panel">لا توجد فحوصات جودة معلقة.</div>}
+      </div>
     </section>
 
     <section className="admin-list-shell">

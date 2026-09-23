@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { acceptQuoteForCustomer } from "@/lib/commercial-workflow";
+import { decideDesignVersion } from "@/lib/design-workflow";
 
 export async function acceptCustomerQuoteAction(formData:FormData){
   const access=await requireCustomerAccess();
@@ -15,4 +16,27 @@ export async function acceptCustomerQuoteAction(formData:FormData){
   });
 
   revalidatePath("/account");
+}
+
+
+export async function decideCustomerDesignAction(formData:FormData){
+  const access=await requireCustomerAccess();
+  const designVersionId=String(formData.get("designVersionId")??"").trim();
+  const decision=String(formData.get("decision")??"").trim();
+  const notes=String(formData.get("notes")??"").trim();
+
+  if(!["approved","revision_requested","rejected"].includes(decision)){
+    throw new Error("Invalid design decision.");
+  }
+
+  await decideDesignVersion({
+    designVersionId,
+    customerId:access.customerId,
+    decision:decision as "approved"|"revision_requested"|"rejected",
+    notes:notes||null
+  });
+
+  revalidatePath("/account");
+  revalidatePath("/admin/design");
+  revalidatePath("/admin/orders");
 }

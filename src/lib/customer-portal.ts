@@ -27,6 +27,7 @@ export type CustomerPortalSnapshot={
     service:string;
     orderNumber:number;
     notes:string|null;
+    documentId:string|null;
     fileName:string|null;
     decision:string|null;
     decidedAt:string|null;
@@ -79,6 +80,7 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
         s.name_ar as service_name,
         o.order_number,
         dv.notes,
+        dv.document_id,
         d.file_name,
         da.decision,
         da.decided_at,
@@ -144,6 +146,7 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
       service:String(row.service_name),
       orderNumber:Number(row.order_number),
       notes:row.notes?String(row.notes):null,
+      documentId:row.document_id?String(row.document_id):null,
       fileName:row.file_name?String(row.file_name):null,
       decision:row.decision?String(row.decision):null,
       decidedAt:row.decided_at?new Date(String(row.decided_at)).toISOString():null,

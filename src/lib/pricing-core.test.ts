@@ -33,4 +33,15 @@ describe("pricing core",()=>{
     expect(result.status).toBe("priced");
     if(result.status==="priced") expect(result.subtotal).toBe(500);
   });
+
+  it("prices matrix selections and multiplies by quantity",()=>{
+    const result=calculatePricing([{name:"المقاس",ruleType:"matrix",calculation:{field:"size",prices:{A4:100,A3:180},multiply_by_quantity:true}}],{size:"A3",quantity:"5"});
+    expect(result.status).toBe("priced");
+    if(result.status==="priced") expect(result.subtotal).toBe(900);
+  });
+
+  it("requires a quote when matrix selection has no configured price",()=>{
+    const result=calculatePricing([{name:"المقاس",ruleType:"matrix",calculation:{field:"size",prices:{A4:100}}}],{size:"A2",quantity:"2"});
+    expect(result.status).toBe("requires_quote");
+  });
 });

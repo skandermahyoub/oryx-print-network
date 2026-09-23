@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getProductionSnapshot } from "@/lib/admin-production";
-import { reviewQcAction } from "./actions";
 
 export default async function ProductionPage(){
   const production=await getProductionSnapshot();
@@ -32,15 +31,7 @@ export default async function ProductionPage(){
             <span className="status-pill">{inspection.status}</span>
           </div>
           <p>{inspection.partner??"تنفيذ داخلي"} · كمية {inspection.quantity}</p>
-          <form action={reviewQcAction} className="qc-review-form">
-            <input type="hidden" name="inspectionId" value={inspection.id}/>
-            <input name="acceptedQuantity" type="number" min="0" step="0.001" placeholder="الكمية المقبولة"/>
-            <input name="rejectedQuantity" type="number" min="0" step="0.001" placeholder="الكمية المرفوضة"/>
-            <input name="notes" placeholder="ملاحظات الفحص"/>
-            <button name="decision" value="passed" className="qc-pass" type="submit">اجتاز</button>
-            <button name="decision" value="conditional" className="qc-conditional" type="submit">قبول مشروط</button>
-            <button name="decision" value="failed" className="qc-fail" type="submit">فشل وإعادة عمل</button>
-          </form>
+          <Link className="qc-open-button" href={`/admin/production/qc/${inspection.id}`}>فتح Checklist وفحص الجودة ←</Link>
         </article>):<div className="empty-panel">لا توجد فحوصات جودة معلقة.</div>}
       </div>
     </section>

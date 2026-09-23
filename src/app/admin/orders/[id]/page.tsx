@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminOrderDetail } from "@/lib/admin-order-detail";
 import { getSql } from "@/lib/db";
+import { createDeliveryJobAction, createInstallationJobAction } from "@/app/admin/logistics/actions";
 import {
   assignPartnerAction,
   createQuoteAction,
@@ -213,6 +214,34 @@ export default async function AdminOrderDetailPage({params}:{params:Promise<{id:
       </div>
 
       <aside className="admin-order-side">
+        {detail.order.status==="ready"?<div className="admin-order-section logistics-order-card">
+          <h2>تجهيز التسليم</h2>
+          <form action={createDeliveryJobAction} className="order-logistics-form">
+            <input type="hidden" name="orderId" value={detail.order.id}/>
+            <select name="deliveryType" defaultValue="delivery">
+              <option value="delivery">توصيل</option>
+              <option value="pickup">استلام من النقطة</option>
+            </select>
+            <input name="recipient" defaultValue={detail.customer.name} placeholder="اسم المستلم"/>
+            <input name="phone" defaultValue={detail.customer.phone??""} placeholder="الهاتف"/>
+            <input name="address" defaultValue={detail.customer.city??""} placeholder="العنوان"/>
+            <input name="scheduledAt" type="datetime-local"/>
+            <button type="submit">إنشاء مهمة تسليم</button>
+          </form>
+
+          <details className="installation-create-details">
+            <summary>يحتاج تركيبًا ميدانيًا؟</summary>
+            <form action={createInstallationJobAction} className="order-logistics-form">
+              <input type="hidden" name="orderId" value={detail.order.id}/>
+              <input name="address" defaultValue={detail.customer.city??""} placeholder="موقع التركيب"/>
+              <input name="scheduledAt" type="datetime-local"/>
+              <input name="technicianName" placeholder="اسم الفني"/>
+              <input name="technicianPhone" placeholder="هاتف الفني"/>
+              <button type="submit">إنشاء مهمة تركيب</button>
+            </form>
+          </details>
+        </div>:null}
+
         <div className="admin-order-finance">
           <small>الإجمالي</small><strong>{detail.order.total.toLocaleString("en-US")} {detail.order.currency}</strong>
           <span>Subtotal {detail.order.subtotal.toLocaleString("en-US")}</span>

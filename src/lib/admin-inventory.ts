@@ -11,6 +11,7 @@ export type InventorySnapshot={
     averageCost:number|null;
     currency:string;
   }>;
+  warehouses:Array<{id:string;code:string;name:string;city:string|null}>;
   purchases:Array<{
     id:string;
     number:number;
@@ -23,13 +24,13 @@ export type InventorySnapshot={
   totals:{items:number;lowStock:number;openPurchaseRequests:number;openPurchaseOrders:number};
 };
 
-const empty:InventorySnapshot={items:[],purchases:[],totals:{items:0,lowStock:0,openPurchaseRequests:0,openPurchaseOrders:0}};
+const empty:InventorySnapshot={items:[],warehouses:[],purchases:[],totals:{items:0,lowStock:0,openPurchaseRequests:0,openPurchaseOrders:0}};
 
 export async function getInventorySnapshot():Promise<InventorySnapshot>{
   if(!databaseConfigured()) return empty;
   try{
     const sql=getSql();
-    const [items,purchases,totals]=await Promise.all([
+    const [items,warehouses,purchases,totals]=await Promise.all([
       sql`
         select
           ii.id,ii.sku,ii.name_ar,ii.unit,ii.min_stock,ii.average_cost,ii.currency,
@@ -43,6 +44,12 @@ export async function getInventorySnapshot():Promise<InventorySnapshot>{
         group by ii.id
         order by ii.name_ar
         limit 200
+      `,
+      sql`
+        select id,code,name_ar,city
+        from warehouses
+        where is_active=true
+        order by name_ar
       `,
       sql`
         select po.id,po.po_number,coalesce(s.trade_name,s.legal_name) as supplier_name,po.status,po.total,po.currency,po.expected_at
@@ -83,6 +90,12 @@ export async function getInventorySnapshot():Promise<InventorySnapshot>{
         minStock:Number(row.min_stock??0),
         averageCost:row.average_cost===null?null:Number(row.average_cost),
         currency:String(row.currency??"YER")
+      })),
+      warehouses:warehouses.map(row=>({
+        id:String(row.id),
+        code:String(row.code),
+        name:String(row.name_ar),
+        city:row.city?String(row.city):null
       })),
       purchases:purchases.map(row=>({
         id:String(row.id),

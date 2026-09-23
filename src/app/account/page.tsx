@@ -68,7 +68,7 @@ export default async function AccountPage(){
           </header>
           <div className="customer-design-meta">
             <span><b>النسخة</b>V{design.versionNumber}</span>
-            <span><b>الملف</b>{design.fileName??"سيظهر الملف عند ربط التخزين"}</span>
+            <span><b>الملف</b>{design.documentId?<Link href={`/api/documents/${design.documentId}/download`}>{design.fileName??"فتح الملف"}</Link>:"سيظهر الملف عند ربط التخزين"}</span>
             <span><b>التاريخ</b>{new Date(design.createdAt).toLocaleString("ar-YE")}</span>
           </div>
           {design.notes?<p>{design.notes}</p>:null}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireCustomerAccess } from "@/lib/auth/customer-access";
 import { getCustomerPortalSnapshot } from "@/lib/customer-portal";
+import { acceptCustomerQuoteAction } from "./actions";
 
 export const dynamic="force-dynamic";
 
@@ -25,7 +26,7 @@ export default async function AccountPage(){
       <article><small>طلباتك</small><strong>{snapshot.orders.length}</strong></article>
       <article><small>النقاط</small><strong>{snapshot.loyalty.points}</strong></article>
       <article><small>المستوى</small><strong>{snapshot.loyalty.tier}</strong></article>
-      <article><small>فواتير</small><strong>{snapshot.invoices.length}</strong></article>
+      <article><small>عروض أسعار</small><strong>{snapshot.quotes.length}</strong></article>
     </section>
 
     <section className="customer-account-section">
@@ -38,6 +39,22 @@ export default async function AccountPage(){
           <span>{new Date(order.createdAt).toLocaleDateString("ar-YE")}</span>
           <b>{order.total.toLocaleString("en-US")} {order.currency}</b>
         </article>):<div className="account-empty"><strong>لا توجد طلبات مرتبطة بالحساب بعد.</strong><p>ابدأ طلبًا جديدًا أو استخدم التتبع للطلبات السابقة.</p></div>}
+      </div>
+    </section>
+
+    <section className="customer-account-section">
+      <div className="account-section-head"><h2>عروض الأسعار</h2></div>
+      <div className="customer-order-list">
+        {snapshot.quotes.length?snapshot.quotes.map(quote=><article key={quote.id}>
+          <div><small>عرض سعر</small><strong>#{quote.number}</strong></div>
+          <span className="status-pill">{quote.status}</span>
+          <span>{quote.validUntil??"—"}</span>
+          <b>{quote.total.toLocaleString("en-US")} {quote.currency}</b>
+          {quote.status==="sent"?<form action={acceptCustomerQuoteAction}>
+            <input type="hidden" name="quoteId" value={quote.id}/>
+            <button className="quote-accept-button" type="submit">اعتماد العرض</button>
+          </form>:<span>{quote.status==="accepted"?"معتمد":"مغلق"}</span>}
+        </article>):<div className="account-empty">لا توجد عروض أسعار مرسلة إليك.</div>}
       </div>
     </section>
 

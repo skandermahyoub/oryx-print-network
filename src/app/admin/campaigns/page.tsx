@@ -29,7 +29,7 @@ export default async function SalesCampaignsPage(){
           <span className="status-pill">{labels[campaign.status]??campaign.status}</span>
           <small>{campaign.packageName??"بدون باقة مرتبطة"}</small>
         </div>
-        <h2>{campaign.name}</h2>
+        <h2><Link className="table-order-link" href={`/admin/campaigns/${campaign.id}`}>{campaign.name}</Link></h2>
         <p>{campaign.objective}</p>
         {campaign.pitch?<blockquote>{campaign.pitch}</blockquote>:null}
         <div className="campaign-card-kpis">

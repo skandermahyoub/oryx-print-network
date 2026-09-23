@@ -28,7 +28,7 @@ export default async function DesignPage(){
           <thead><tr><th>الطلب</th><th>الخدمة</th><th>الحالة</th><th>الإصدارات</th><th>الاعتماد</th><th>الموعد</th></tr></thead>
           <tbody>
             {design.jobs.length?design.jobs.map(job=><tr key={job.id}>
-              <td><strong>#{job.orderNumber}</strong></td>
+              <td><Link className="table-order-link" href={`/admin/design/${job.id}`}><strong>#{job.orderNumber}</strong></Link></td>
               <td>{job.service}</td>
               <td><span className="status-pill">{job.status}</span></td>
               <td>{job.versions}</td>

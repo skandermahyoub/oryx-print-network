@@ -46,12 +46,29 @@ export type CustomerPortalSnapshot={
     points:number;
     lifetimePoints:number;
     tier:string;
+    referralCode:string|null;
   };
+  rewards:Array<{
+    id:string;
+    name:string;
+    description:string|null;
+    pointsCost:number;
+    type:string;
+    value:number|null;
+    currency:string|null;
+  }>;
+  redemptions:Array<{
+    id:string;
+    reward:string;
+    points:number;
+    status:string;
+    createdAt:string;
+  }>;
 };
 
 export async function getCustomerPortalSnapshot(customerId:string):Promise<CustomerPortalSnapshot>{
   const sql=getSql();
-  const [orders,quotes,designs,invoices,loyalty]=await Promise.all([
+  const [orders,quotes,designs,invoices,loyalty,rewards,redemptions,referral]=await Promise.all([
     sql`
       select
         o.id,o.order_number,o.status,o.total,o.currency,o.created_at,
@@ -115,6 +132,40 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
       from loyalty_accounts
       where customer_id=${customerId}
       limit 1
+    `,
+    sql`
+      select id,name_ar,description_ar,points_cost,reward_type,reward_value,currency
+      from reward_catalog
+      where is_active=true
+        and (valid_from is null or valid_from<=now())
+        and (valid_until is null or valid_until>=now())
+        and (
+          inventory_limit is null
+          or (
+            select count(*)
+            from reward_redemptions rr
+            where rr.reward_id=reward_catalog.id
+              and rr.status in ('requested','approved','used')
+          )<inventory_limit
+        )
+      order by points_cost,name_ar
+      limit 30
+    `,
+    sql`
+      select
+        rr.id,rr.points_spent,rr.status,rr.created_at,rc.name_ar
+      from reward_redemptions rr
+      join loyalty_accounts la on la.id=rr.loyalty_account_id
+      join reward_catalog rc on rc.id=rr.reward_id
+      where la.customer_id=${customerId}
+      order by rr.created_at desc
+      limit 30
+    `,
+    sql`
+      select code
+      from referral_codes
+      where customer_id=${customerId} and is_active=true
+      limit 1
     `
   ]);
 
@@ -164,7 +215,24 @@ export async function getCustomerPortalSnapshot(customerId:string):Promise<Custo
     loyalty:{
       points:Number(points?.points_balance??0),
       lifetimePoints:Number(points?.lifetime_points??0),
-      tier:String(points?.tier_key??"member")
-    }
+      tier:String(points?.tier_key??"member"),
+      referralCode:referral[0]?.code?String(referral[0].code):null
+    },
+    rewards:rewards.map(row=>({
+      id:String(row.id),
+      name:String(row.name_ar),
+      description:row.description_ar?String(row.description_ar):null,
+      pointsCost:Number(row.points_cost),
+      type:String(row.reward_type),
+      value:row.reward_value===null?null:Number(row.reward_value),
+      currency:row.currency?String(row.currency):null
+    })),
+    redemptions:redemptions.map(row=>({
+      id:String(row.id),
+      reward:String(row.name_ar),
+      points:Number(row.points_spent),
+      status:String(row.status),
+      createdAt:new Date(String(row.created_at)).toISOString()
+    }))
   };
 }

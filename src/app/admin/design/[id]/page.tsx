@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminDesignDetail } from "@/lib/admin-design-detail";
-import { assignDesignJobAction, createDesignVersionAction } from "./actions";
+import { assignDesignJobAction } from "./actions";
+import { DesignVersionUploader } from "@/components/design-version-uploader";
 
 export const dynamic="force-dynamic";
 
@@ -53,7 +54,7 @@ export default async function DesignDetailPage({params}:{params:Promise<{id:stri
             {detail.versions.length?detail.versions.map(version=><article key={version.id}>
               <div><small>VERSION</small><strong>V{version.number}</strong></div>
               <span className="status-pill">{version.status}</span>
-              <div><small>الملف</small><b>{version.fileName??(version.documentId?"Document linked":"بدون ملف")}</b></div>
+              <div><small>الملف</small>{version.documentId?<Link href={`/api/documents/${version.documentId}/download`}><b>{version.fileName??"فتح الملف"}</b></Link>:<b>بدون ملف</b>}</div>
               <div><small>قرار العميل</small><b>{version.decision??"—"}</b></div>
               <div><small>أنشئ</small><b>{new Date(version.createdAt).toLocaleString("ar-YE")}</b></div>
               {version.notes?<p>{version.notes}</p>:null}
@@ -64,17 +65,8 @@ export default async function DesignDetailPage({params}:{params:Promise<{id:stri
 
         <section className="admin-order-section">
           <div className="admin-order-section-head"><h2>نسخة جديدة</h2></div>
-          <form action={createDesignVersionAction} className="design-version-create-form">
-            <input type="hidden" name="designJobId" value={detail.job.id}/>
-            <label>Document ID
-              <input name="documentId" placeholder="اختياري — مستند موجود في design-files" dir="ltr"/>
-            </label>
-            <label className="wide">ملاحظات النسخة
-              <textarea name="notes" rows={4} placeholder="ما الذي تغير في هذه النسخة وما الذي يجب على العميل مراجعته؟"/>
-            </label>
-            <button type="submit">إنشاء نسخة وإرسالها للاعتماد</button>
-          </form>
-          <p className="design-storage-note">الملف نفسه سيُرفع عبر طبقة التخزين الخاصة عند ربط بيئة الـPreview؛ هنا نربط النسخة بسجل Document غير قابل للاستبدال.</p>
+          <DesignVersionUploader designJobId={detail.job.id}/>
+          <p className="design-storage-note">الرفع يذهب مباشرة إلى Neon Object Storage عبر رابط قصير العمر، ثم تُربط النسخة بسجل Document ثابت قبل إرسالها للعميل.</p>
         </section>
       </div>
 

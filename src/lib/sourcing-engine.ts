@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { queueInAppNotification } from "@/lib/notifications";
 import { getRankedPartnersForService } from "@/lib/partner-routing-service";
 
 export async function createSourcingRequestForOrderItem(input:{
@@ -306,6 +307,16 @@ export async function assignSourcingCandidate(input:{
 
   const result=assigned[0];
   if(!result) throw new Error("Assignment could not be created.");
+
+  await queueInAppNotification({
+    recipientType:"partner",
+    recipientId:input.partnerId,
+    templateKey:"production_job_offered",
+    subject:"عمل إنتاج جديد من ORYX",
+    body:`تم إسناد عمل إنتاج جديد إليك. افتح بوابة الشريك لمراجعة المواصفات والتكلفة والموعد المتوقع.`,
+    relatedType:"partner_job",
+    relatedId:String(result.partner_job_id)
+  });
 
   return {
     assignmentId:String(result.assignment_id),

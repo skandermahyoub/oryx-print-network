@@ -107,5 +107,27 @@ export async function requireCustomerAccess():Promise<CustomerAccess>{
   }
 
   if(!access) redirect("/auth/sign-in");
+
+  const sql=getSql();
+  await sql`
+    with loyalty as (
+      insert into loyalty_accounts (customer_id)
+      values (${access.customerId})
+      on conflict (customer_id) do nothing
+      returning id
+    ),
+    referral as (
+      insert into referral_codes (customer_id,code,is_active)
+      values (
+        ${access.customerId},
+        upper(substr(replace(gen_random_uuid()::text,'-',''),1,10)),
+        true
+      )
+      on conflict (customer_id) do nothing
+      returning id
+    )
+    select 1
+  `;
+
   return access;
 }
